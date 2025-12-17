@@ -142,6 +142,6 @@ export const socialLinks = [
 
 export const aboutText = {
   headline: "Bringing Characters to Life",
-  description: "CDKS77 is a graphic designer and animator specializing in character design, 3D animation, and visual storytelling. With a unique style that blends urban aesthetics with cutting-edge animation techniques, every project tells a story.",
+  description: "CBKS77 is a graphic designer and animator specializing in character design, 3D animation, and visual storytelling. With a unique style that blends urban aesthetics with cutting-edge animation techniques, every project tells a story.",
   tagline: "UNBOTHERED. CREATIVE. BOLD."
 };
