@@ -78,7 +78,7 @@ const Footer = () => {
         {/* Copyright */}
         <div className="border-t border-white/10 mt-8 pt-8 text-center">
           <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} CDKS77. All rights reserved. UNBOTHERED.
+            © {new Date().getFullYear()} CBKS77. All rights reserved. UNBOTHERED.
           </p>
         </div>
       </div>
