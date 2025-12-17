@@ -1,34 +1,86 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
-}
+/* CDKS77 Portfolio & Merch Site - Global Styles */
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
-}
-
-.App-header {
-    background-color: #0f0f10;
+.App {
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+    background-color: #000000;
 }
 
-.App-link {
-    color: #61dafb;
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
 }
 
-@keyframes App-logo-spin {
+/* Selection colors */
+::selection {
+    background-color: #d1382f;
+    color: #ffffff;
+}
+
+::-moz-selection {
+    background-color: #d1382f;
+    color: #ffffff;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d1382f;
+    border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ff6b35;
+}
+
+/* Ensure text is readable */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Fix for video backgrounds */
+video {
+    object-fit: cover;
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
     from {
-        transform: rotate(0deg);
+        opacity: 0;
+        transform: translateY(20px);
     }
     to {
-        transform: rotate(360deg);
+        opacity: 1;
+        transform: translateY(0);
     }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* Button hover effects */
+button, .button {
+    transition: all 0.2s ease-in-out;
+}
+
+button:active, .button:active {
+    transform: scale(0.98);
+}
+
+/* Link hover effects */
+a {
+    transition: color 0.2s ease-in-out;
+}
+
+/* Image loading optimization */
+img {
+    image-rendering: -webkit-optimize-contrast;
 }
