@@ -143,8 +143,8 @@ async def get_contact_submissions():
 async def create_order(order: OrderCreate):
     """Create a new order"""
     try:
-        new_order = Order(**order.dict())
-        await db.orders.insert_one(new_order.dict())
+        new_order = Order(**order.model_dump())
+        await db.orders.insert_one(new_order.model_dump())
         logger.info(f"Order created: {new_order.orderNumber}")
         return new_order
     except Exception as e:
