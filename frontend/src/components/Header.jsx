@@ -35,7 +35,7 @@ const Header = ({ cartItemCount = 0 }) => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 group">
             <div className="text-3xl font-black tracking-tighter text-white group-hover:text-red-500 transition-colors">
-              CDKS<span className="text-red-500 group-hover:text-white">77</span>
+              CBKS<span className="text-red-500 group-hover:text-white">77</span>
             </div>
           </Link>
 
