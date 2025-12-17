@@ -103,7 +103,7 @@ const Home = () => {
               <div className="absolute inset-0 bg-red-500 transform rotate-3 group-hover:rotate-6 transition-transform"></div>
               <img
                 src="https://customer-assets.emergentagent.com/job_cdks-merch/artifacts/qu2u3v2q_IMG_2510.JPG"
-                alt="CDKS77 Character"
+                alt="CBKS77 Character"
                 className="relative z-10 w-full transform -rotate-3 group-hover:rotate-0 transition-transform"
               />
             </div>
