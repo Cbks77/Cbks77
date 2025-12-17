@@ -145,7 +145,7 @@ const Shop = ({ onAddToCart }) => {
         <div className="mt-16 bg-zinc-950 border border-zinc-800 p-8 text-center">
           <h3 className="text-white font-bold text-2xl mb-4">Free Shipping on Orders Over $100</h3>
           <p className="text-gray-400">
-            All orders ship within 3-5 business days. Questions? Contact us at hello@cdks77.com
+            All orders ship within 3-5 business days. Questions? Contact us at hello@cbks77.com
           </p>
         </div>
       </div>
