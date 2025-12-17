@@ -40,7 +40,7 @@ const Home = () => {
             </span>
           </div>
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter text-white mb-6">
-            CDKS<span className="text-red-500">77</span>
+            CBKS<span className="text-red-500">77</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-4 font-semibold tracking-wide">
             {aboutText.tagline}
