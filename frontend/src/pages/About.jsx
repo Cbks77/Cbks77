@@ -11,7 +11,7 @@ const About = () => {
         {/* Header */}
         <div className="mb-16">
           <h1 className="text-6xl md:text-8xl font-black text-white mb-6 tracking-tight">
-            About CDKS77
+            About CBKS77
           </h1>
         </div>
 
