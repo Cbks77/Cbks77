@@ -66,8 +66,8 @@ async def get_product(product_id: str):
 async def create_product(product: ProductCreate):
     """Create a new product"""
     try:
-        new_product = Product(**product.dict())
-        await db.products.insert_one(new_product.dict())
+        new_product = Product(**product.model_dump())
+        await db.products.insert_one(new_product.model_dump())
         return new_product
     except Exception as e:
         logger.error(f"Error creating product: {e}")
