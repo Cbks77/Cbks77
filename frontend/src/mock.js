@@ -115,27 +115,27 @@ export const products = [
 export const socialLinks = [
   {
     name: "Instagram",
-    url: "https://instagram.com/cdks77",
+    url: "https://instagram.com/cbks77",
     icon: "instagram"
   },
   {
     name: "Twitter",
-    url: "https://twitter.com/cdks77",
+    url: "https://twitter.com/cbks77",
     icon: "twitter"
   },
   {
     name: "YouTube",
-    url: "https://youtube.com/@cdks77",
+    url: "https://youtube.com/@cbks77",
     icon: "youtube"
   },
   {
     name: "Vimeo",
-    url: "https://vimeo.com/cdks77",
+    url: "https://vimeo.com/cbks77",
     icon: "video"
   },
   {
     name: "Email",
-    url: "mailto:hello@cdks77.com",
+    url: "mailto:hello@cbks77.com",
     icon: "mail"
   }
 ];
