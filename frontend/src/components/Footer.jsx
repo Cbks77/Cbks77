@@ -19,7 +19,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <div className="text-3xl font-black tracking-tighter text-white">
-              CDKS<span className="text-red-500">77</span>
+              CBKS<span className="text-red-500">77</span>
             </div>
             <p className="text-gray-400 text-sm">
               Graphic Designer & Animator
