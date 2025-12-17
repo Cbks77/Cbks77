@@ -1,4 +1,4 @@
-// Mock data for CDKS77 Portfolio & Merch Site
+// Mock data for CBKS77 Portfolio & Merch Site
 
 export const portfolioItems = [
   {
