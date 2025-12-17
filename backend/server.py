@@ -118,8 +118,8 @@ async def create_portfolio_item(item: PortfolioItemCreate):
 async def submit_contact_form(submission: ContactSubmissionCreate):
     """Submit a contact form"""
     try:
-        new_submission = ContactSubmission(**submission.dict())
-        await db.contact_submissions.insert_one(new_submission.dict())
+        new_submission = ContactSubmission(**submission.model_dump())
+        await db.contact_submissions.insert_one(new_submission.model_dump())
         logger.info(f"Contact form submitted by {submission.email}")
         return new_submission
     except Exception as e:
