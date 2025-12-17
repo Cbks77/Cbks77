@@ -58,7 +58,7 @@ const Shop = ({ onAddToCart }) => {
             Shop
           </h1>
           <p className="text-xl text-gray-400 max-w-2xl">
-            Official CDKS77 merchandise. Rep the brand, stay unbothered.
+            Official CBKS77 merchandise. Rep the brand, stay unbothered.
           </p>
         </div>
 
