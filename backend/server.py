@@ -105,8 +105,8 @@ async def get_portfolio_item(item_id: str):
 async def create_portfolio_item(item: PortfolioItemCreate):
     """Create a new portfolio item"""
     try:
-        new_item = PortfolioItem(**item.dict())
-        await db.portfolio.insert_one(new_item.dict())
+        new_item = PortfolioItem(**item.model_dump())
+        await db.portfolio.insert_one(new_item.model_dump())
         return new_item
     except Exception as e:
         logger.error(f"Error creating portfolio item: {e}")
