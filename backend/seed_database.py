@@ -30,13 +30,13 @@ async def seed_database():
     # Seed products
     print(f"Seeding {len(products)} products...")
     product_objects = [Product(**product) for product in products]
-    await db.products.insert_many([p.dict() for p in product_objects])
+    await db.products.insert_many([p.model_dump() for p in product_objects])
     print(f"✅ Seeded {len(products)} products")
     
     # Seed portfolio items
     print(f"Seeding {len(portfolio_items)} portfolio items...")
     portfolio_objects = [PortfolioItem(**item) for item in portfolio_items]
-    await db.portfolio.insert_many([p.dict() for p in portfolio_objects])
+    await db.portfolio.insert_many([p.model_dump() for p in portfolio_objects])
     print(f"✅ Seeded {len(portfolio_items)} portfolio items")
     
     print("✨ Database seeding complete!")
