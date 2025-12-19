@@ -114,37 +114,42 @@ class PayPalService:
                 "error": str(e)
             }
     
-    def execute_payment(self, payment_id: str, payer_id: str) -> Dict[str, Any]:
+    def capture_order(self, order_id: str) -> Dict[str, Any]:
         """
-        Execute/capture a PayPal payment
+        Capture/complete a PayPal order
         
         Args:
-            payment_id: PayPal payment ID
-            payer_id: PayPal payer ID
+            order_id: PayPal order ID
             
         Returns:
             Dictionary with success status and transaction details
         """
         try:
-            payment = paypalrestsdk.Payment.find(payment_id)
+            access_token = self.get_access_token()
+            url = f"{self.base_url}/v2/checkout/orders/{order_id}/capture"
             
-            if payment.execute({"payer_id": payer_id}):
-                logger.info(f"PayPal payment executed: {payment_id}")
-                return {
-                    "success": True,
-                    "payment_id": payment_id,
-                    "state": payment.state,
-                    "payer_email": payment.payer.payer_info.email if payment.payer else None
-                }
-            else:
-                logger.error(f"PayPal payment execution failed: {payment.error}")
-                return {
-                    "success": False,
-                    "error": payment.error
-                }
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {access_token}"
+            }
+            
+            response = requests.post(url, headers=headers)
+            response.raise_for_status()
+            
+            result = response.json()
+            logger.info(f"PayPal order captured: {order_id}")
+            
+            return {
+                "success": True,
+                "order_id": order_id,
+                "status": result.get('status'),
+                "payer_email": result.get('payer', {}).get('email_address')
+            }
                 
         except Exception as e:
-            logger.error(f"Error executing PayPal payment: {str(e)}")
+            logger.error(f"Error capturing PayPal order: {str(e)}")
+            if hasattr(e, 'response') and e.response:
+                logger.error(f"Response: {e.response.text}")
             return {
                 "success": False,
                 "error": str(e)
