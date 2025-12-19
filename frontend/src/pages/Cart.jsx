@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Plus, Minus, ArrowRight } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { useToast } from '../hooks/use-toast';
+import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
+import { api } from '../api/client';
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
