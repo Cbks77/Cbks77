@@ -221,11 +221,11 @@ const Cart = () => {
               <div className="space-y-3 mb-6 pb-6 border-b border-zinc-800">
                 <div className="flex justify-between text-gray-400">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>£{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-400">
                   <span>Shipping</span>
-                  <span>{shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}</span>
+                  <span>{shipping === 0 ? 'FREE' : `£${shipping.toFixed(2)}`}</span>
                 </div>
                 {shipping === 0 && (
                   <p className="text-green-500 text-sm font-semibold">Free shipping applied!</p>
@@ -234,7 +234,7 @@ const Cart = () => {
 
               <div className="flex justify-between text-white font-bold text-2xl mb-6">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>£{total.toFixed(2)}</span>
               </div>
 
               <PayPalScriptProvider options={{ "client-id": process.env.REACT_APP_PAYPAL_CLIENT_ID }}>
