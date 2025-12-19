@@ -216,7 +216,7 @@ const Home = () => {
                   </h3>
                   <p className="text-gray-400 text-sm mb-4 line-clamp-2">{product.description}</p>
                   <div className="flex justify-between items-center">
-                    <span className="text-white font-black text-2xl">${product.price.toFixed(2)}</span>
+                    <span className="text-white font-black text-2xl">£{product.price.toFixed(2)}</span>
                     <Button
                       size="sm"
                       className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-none"
