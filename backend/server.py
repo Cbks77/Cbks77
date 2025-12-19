@@ -223,18 +223,15 @@ async def create_paypal_payment(order_id: str):
 
 @api_router.post("/orders/{order_id}/capture")
 async def capture_paypal_payment(order_id: str, capture_req: PayPalCaptureRequest):
-    """Capture/execute PayPal payment"""
+    """Capture/execute PayPal order"""
     try:
         # Get order from database
         order = await db.orders.find_one({"id": order_id})
         if not order:
             raise HTTPException(status_code=404, detail="Order not found")
         
-        # Execute payment
-        result = paypal_service.execute_payment(
-            capture_req.paypalOrderId,
-            capture_req.paypalOrderId  # In real scenario, this would be payer_id
-        )
+        # Capture the PayPal order
+        result = paypal_service.capture_order(capture_req.paypalOrderId)
         
         if result['success']:
             # Update order status
