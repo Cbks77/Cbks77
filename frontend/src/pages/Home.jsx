@@ -27,7 +27,7 @@ const Home = () => {
             playsInline
             className="w-full h-full object-cover opacity-40"
           >
-            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
+            <source src="https://customer-assets.emergentagent.com/job_cdks-merch/artifacts/cim12qs3_Grok-Video-95C7645C-6AEC-4C8C-A281-A7B026C59195.mp4" type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black"></div>
         </div>
