@@ -176,7 +176,7 @@ class PayPalCaptureRequest(BaseModel):
 
 @api_router.post("/orders/{order_id}/create-payment")
 async def create_paypal_payment(order_id: str):
-    """Create PayPal payment for an order"""
+    """Create PayPal order for payment"""
     try:
         # Get order from database
         order = await db.orders.find_one({"id": order_id})
@@ -188,35 +188,36 @@ async def create_paypal_payment(order_id: str):
         for item in order['items']:
             items.append({
                 "name": item['productName'],
-                "sku": item['productId'],
-                "price": str(item['price']),
-                "currency": "USD",
+                "price": item['price'],
                 "quantity": item['quantity']
             })
         
-        # Create PayPal payment
+        # Create PayPal order
         payment_data = {
             "items": items,
             "total": order['total'],
             "orderNumber": order['orderNumber']
         }
         
-        result = paypal_service.create_payment(payment_data)
+        result = paypal_service.create_order(payment_data)
         
         if result['success']:
-            # Update order with PayPal payment ID
+            # Update order with PayPal order ID
             await db.orders.update_one(
                 {"id": order_id},
-                {"$set": {"paypalOrderId": result['payment_id']}}
+                {"$set": {"paypalOrderId": result['order_id']}}
             )
-            return result
+            return {
+                "success": True,
+                "payment_id": result['order_id']  # Return as payment_id for frontend compatibility
+            }
         else:
             raise HTTPException(status_code=400, detail=result.get('error', 'Payment creation failed'))
             
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error creating PayPal payment: {e}")
+        logger.error(f"Error creating PayPal order: {e}")
         raise HTTPException(status_code=500, detail="Failed to create payment")
 
 
