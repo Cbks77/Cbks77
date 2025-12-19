@@ -80,6 +80,16 @@ export const api = {
   },
 
   // PayPal
+  createPayment: async (orderId) => {
+    try {
+      const response = await axios.post(`${API_URL}/orders/${orderId}/create-payment`);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating payment:', error);
+      throw error;
+    }
+  },
+
   capturePayment: async (orderId, paypalOrderId) => {
     try {
       const response = await axios.post(`${API_URL}/orders/${orderId}/capture`, {
