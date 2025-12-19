@@ -125,7 +125,7 @@ const Shop = ({ onAddToCart }) => {
                 {/* Price and Add to Cart */}
                 <div className="flex justify-between items-center pt-4 border-t border-zinc-800">
                   <span className="text-white font-black text-2xl">
-                    ${product.price.toFixed(2)}
+                    £{product.price.toFixed(2)}
                   </span>
                   <Button
                     onClick={() => handleAddToCart(product)}
