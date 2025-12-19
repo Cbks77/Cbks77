@@ -70,7 +70,7 @@ class PayPalService:
                     "name": item.get('name', 'Product'),
                     "quantity": str(item.get('quantity', 1)),
                     "unit_amount": {
-                        "currency_code": "USD",
+                        "currency_code": "GBP",
                         "value": f"{float(item.get('price', 0)):.2f}"
                     }
                 })
@@ -81,11 +81,11 @@ class PayPalService:
                     "reference_id": order_data.get('orderNumber', 'ORDER'),
                     "description": f"CBKS77 Order {order_data.get('orderNumber', '')}",
                     "amount": {
-                        "currency_code": "USD",
+                        "currency_code": "GBP",
                         "value": f"{float(order_data.get('total', 0)):.2f}",
                         "breakdown": {
                             "item_total": {
-                                "currency_code": "USD",
+                                "currency_code": "GBP",
                                 "value": f"{float(order_data.get('total', 0)):.2f}"
                             }
                         }
