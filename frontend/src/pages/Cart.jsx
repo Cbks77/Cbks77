@@ -52,12 +52,77 @@ const Cart = () => {
   const shipping = subtotal > 100 ? 0 : 10;
   const total = subtotal + shipping;
 
-  const handleCheckout = () => {
-    // Mock checkout - will be replaced with PayPal integration
-    toast({
-      title: "Checkout Coming Soon!",
-      description: "PayPal integration will be added in the next phase.",
-    });
+  const createOrderInBackend = async () => {
+    setIsCreatingOrder(true);
+    try {
+      // Create order in backend
+      const orderData = {
+        items: cartItems.map(item => ({
+          productId: item.id,
+          productName: item.name,
+          size: item.size,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        subtotal: subtotal,
+        shipping: shipping,
+        total: total,
+        customerEmail: "customer@example.com", // This should come from a form
+        customerName: "Customer Name"
+      };
+
+      const order = await api.createOrder(orderData);
+      setOrderId(order.id);
+      return order.id;
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create order. Please try again.",
+        variant: "destructive"
+      });
+      throw error;
+    } finally {
+      setIsCreatingOrder(false);
+    }
+  };
+
+  const createPayPalOrder = async () => {
+    try {
+      if (!orderId) {
+        const newOrderId = await createOrderInBackend();
+        const paymentResult = await api.createPayment(newOrderId);
+        if (paymentResult.success) {
+          return paymentResult.payment_id;
+        }
+      }
+    } catch (error) {
+      console.error('Error creating PayPal order:', error);
+      throw error;
+    }
+  };
+
+  const onApprove = async (data) => {
+    try {
+      await api.capturePayment(orderId, data.orderID);
+      
+      // Clear cart
+      localStorage.removeItem('cart');
+      setCartItems([]);
+      
+      toast({
+        title: "Payment Successful!",
+        description: "Your order has been placed successfully.",
+      });
+      
+      // Redirect to success page
+      navigate('/');
+    } catch (error) {
+      toast({
+        title: "Payment Failed",
+        description: "There was an error processing your payment.",
+        variant: "destructive"
+      });
+    }
   };
 
   if (cartItems.length === 0) {
