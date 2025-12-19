@@ -155,27 +155,38 @@ class PayPalService:
                 "error": str(e)
             }
     
-    def get_payment_details(self, payment_id: str) -> Dict[str, Any]:
+    def get_order_details(self, order_id: str) -> Dict[str, Any]:
         """
-        Get PayPal payment details
+        Get PayPal order details
         
         Args:
-            payment_id: PayPal payment ID
+            order_id: PayPal order ID
             
         Returns:
-            Payment details dictionary
+            Order details dictionary
         """
         try:
-            payment = paypalrestsdk.Payment.find(payment_id)
+            access_token = self.get_access_token()
+            url = f"{self.base_url}/v2/checkout/orders/{order_id}"
+            
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {access_token}"
+            }
+            
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            
+            result = response.json()
             return {
                 "success": True,
-                "payment_id": payment_id,
-                "state": payment.state,
-                "create_time": payment.create_time,
-                "update_time": payment.update_time
+                "order_id": order_id,
+                "status": result.get('status'),
+                "create_time": result.get('create_time'),
+                "update_time": result.get('update_time')
             }
         except Exception as e:
-            logger.error(f"Error getting PayPal payment details: {str(e)}")
+            logger.error(f"Error getting PayPal order details: {str(e)}")
             return {
                 "success": False,
                 "error": str(e)
