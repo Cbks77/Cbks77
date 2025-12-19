@@ -2,50 +2,51 @@
 
 portfolio_items = [
     {
-        "title": "Character Design - Hero 77",
-        "description": "3D character design and modeling",
+        "title": "Hero 77 Character Animation",
+        "description": "Dynamic character animation with urban vibes",
         "type": "video",
         "thumbnail": "https://customer-assets.emergentagent.com/job_cdks-merch/artifacts/qu2u3v2q_IMG_2510.JPG",
-        "videoUrl": "https://www.w3schools.com/html/mov_bbb.mp4",
-        "category": "Character Design"
+        "videoUrl": "https://customer-assets.emergentagent.com/job_cdks-merch/artifacts/oieuao9u__users_94bcf30c-5a0e-4cf8-9780-00b84cdc56bf_generated_15bc2301-a31a-4f02-967e-5150c9ea1274_generated_video.mp4",
+        "category": "Animation"
     },
     {
-        "title": "Urban Animation Scene",
-        "description": "Cinematic 3D animation sequence",
+        "title": "Street Style Animation",
+        "description": "Bold character movement and style",
         "type": "video",
         "thumbnail": "https://customer-assets.emergentagent.com/job_cdks-merch/artifacts/ngwpk5k9_IMG_2513.JPG",
-        "videoUrl": "https://www.w3schools.com/html/mov_bbb.mp4",
+        "videoUrl": "https://customer-assets.emergentagent.com/job_cdks-merch/artifacts/payvvh8y__users_94bcf30c-5a0e-4cf8-9780-00b84cdc56bf_generated_9894c0b1-450d-41e4-baf5-a6a4aadb786c_generated_video.mp4",
         "category": "Animation"
     },
     {
-        "title": "Material Studies",
-        "description": "Advanced texturing and shading",
-        "type": "image",
+        "title": "Urban Character Study",
+        "description": "Cinematic character showcase",
+        "type": "video",
         "thumbnail": "https://customer-assets.emergentagent.com/job_cdks-merch/artifacts/tx0c5nej_IMG_2515.JPG",
-        "category": "3D Art"
+        "videoUrl": "https://customer-assets.emergentagent.com/job_cdks-merch/artifacts/zqjcrky1__users_94bcf30c-5a0e-4cf8-9780-00b84cdc56bf_generated_a728187c-e946-4a11-8310-9a0b41f3d4f7_generated_video.mp4",
+        "category": "Animation"
     },
     {
-        "title": "Sunset Character Shot",
-        "description": "Lighting and composition study",
+        "title": "Dynamic Movement Sequence",
+        "description": "Fluid animation and motion capture",
         "type": "video",
         "thumbnail": "https://customer-assets.emergentagent.com/job_cdks-merch/artifacts/aq93vfoy_IMG_2525.JPG",
-        "videoUrl": "https://www.w3schools.com/html/mov_bbb.mp4",
+        "videoUrl": "https://customer-assets.emergentagent.com/job_cdks-merch/artifacts/j25g9avl__users_94bcf30c-5a0e-4cf8-9780-00b84cdc56bf_generated_eae1b213-3610-4ffd-b128-c4af261adb71_generated_video.mp4",
         "category": "Animation"
     },
     {
-        "title": "Product Visualization",
-        "description": "3D product rendering",
-        "type": "image",
-        "thumbnail": "https://customer-assets.emergentagent.com/job_cdks-merch/artifacts/sfa7he9i_IMG_2528.JPG",
-        "category": "3D Art"
-    },
-    {
-        "title": "Street Scene Animation",
-        "description": "Urban environment animation",
+        "title": "Character Expression Animation",
+        "description": "Detailed character performance",
         "type": "video",
-        "thumbnail": "https://images.unsplash.com/photo-1618172193622-ae2d025f4032?w=800&q=80",
-        "videoUrl": "https://www.w3schools.com/html/mov_bbb.mp4",
+        "thumbnail": "https://customer-assets.emergentagent.com/job_cdks-merch/artifacts/sfa7he9i_IMG_2528.JPG",
+        "videoUrl": "https://customer-assets.emergentagent.com/job_cdks-merch/artifacts/1o49ihki__users_94bcf30c-5a0e-4cf8-9780-00b84cdc56bf_generated_0f17ccce-7eb0-4be7-9f79-7e7814db4ef9_generated_video.mp4",
         "category": "Animation"
+    },
+    {
+        "title": "Character Sheet - Hero 77",
+        "description": "Complete character design and turnaround",
+        "type": "image",
+        "thumbnail": "https://customer-assets.emergentagent.com/job_cdks-merch/artifacts/qu2u3v2q_IMG_2510.JPG",
+        "category": "Character Design"
     }
 ]
 
