@@ -8,8 +8,6 @@ import { api } from '../api/client';
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
-  const [orderId, setOrderId] = useState(null);
-  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
