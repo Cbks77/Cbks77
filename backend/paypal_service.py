@@ -1,5 +1,6 @@
 import os
-import paypalrestsdk
+import requests
+import base64
 import logging
 from typing import Dict, Any
 
@@ -9,16 +10,39 @@ class PayPalService:
     def __init__(self):
         self.client_id = os.environ.get('PAYPAL_CLIENT_ID')
         self.client_secret = os.environ.get('PAYPAL_CLIENT_SECRET')
-        self.mode = os.environ.get('PAYPAL_MODE', 'sandbox')  # sandbox or live
+        self.mode = os.environ.get('PAYPAL_MODE', 'sandbox')
         
-        # Configure PayPal SDK
-        paypalrestsdk.configure({
-            "mode": self.mode,
-            "client_id": self.client_id,
-            "client_secret": self.client_secret
-        })
+        # Set API base URL based on mode
+        if self.mode == 'live':
+            self.base_url = 'https://api.paypal.com'
+        else:
+            self.base_url = 'https://api.sandbox.paypal.com'
         
         logger.info(f"PayPal Service initialized in {self.mode} mode")
+    
+    def get_access_token(self) -> str:
+        """Get PayPal OAuth access token"""
+        try:
+            url = f"{self.base_url}/v1/oauth2/token"
+            
+            # Create basic auth header
+            credentials = f"{self.client_id}:{self.client_secret}"
+            encoded_credentials = base64.b64encode(credentials.encode()).decode()
+            
+            headers = {
+                "Authorization": f"Basic {encoded_credentials}",
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+            
+            data = {"grant_type": "client_credentials"}
+            
+            response = requests.post(url, headers=headers, data=data)
+            response.raise_for_status()
+            
+            return response.json()['access_token']
+        except Exception as e:
+            logger.error(f"Error getting access token: {str(e)}")
+            raise
     
     def create_payment(self, order_data: Dict[str, Any]) -> Dict[str, Any]:
         """
