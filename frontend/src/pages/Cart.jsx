@@ -230,13 +230,27 @@ const Cart = () => {
                 <span>${total.toFixed(2)}</span>
               </div>
 
-              <Button
-                onClick={handleCheckout}
-                className="w-full bg-red-500 hover:bg-red-600 text-white font-bold text-lg py-6 rounded-none"
-              >
-                Proceed to Checkout
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+              <PayPalScriptProvider options={{ "client-id": process.env.REACT_APP_PAYPAL_CLIENT_ID }}>
+                <PayPalButtons
+                  createOrder={createPayPalOrder}
+                  onApprove={onApprove}
+                  onError={(err) => {
+                    console.error('PayPal Error:', err);
+                    toast({
+                      title: "Payment Error",
+                      description: "There was an error with PayPal. Please try again.",
+                      variant: "destructive"
+                    });
+                  }}
+                  style={{
+                    layout: 'vertical',
+                    color: 'gold',
+                    shape: 'rect',
+                    label: 'paypal'
+                  }}
+                  disabled={isCreatingOrder}
+                />
+              </PayPalScriptProvider>
 
               <Link to="/shop">
                 <Button
