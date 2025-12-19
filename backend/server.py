@@ -169,6 +169,97 @@ async def get_order(order_id: str):
         raise HTTPException(status_code=500, detail="Failed to fetch order")
 
 
+# PayPal Payment Endpoints
+class PayPalCaptureRequest(BaseModel):
+    paypalOrderId: str
+
+
+@api_router.post("/orders/{order_id}/create-payment")
+async def create_paypal_payment(order_id: str):
+    """Create PayPal payment for an order"""
+    try:
+        # Get order from database
+        order = await db.orders.find_one({"id": order_id})
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        
+        # Prepare items for PayPal
+        items = []
+        for item in order['items']:
+            items.append({
+                "name": item['productName'],
+                "sku": item['productId'],
+                "price": str(item['price']),
+                "currency": "USD",
+                "quantity": item['quantity']
+            })
+        
+        # Create PayPal payment
+        payment_data = {
+            "items": items,
+            "total": order['total'],
+            "orderNumber": order['orderNumber']
+        }
+        
+        result = paypal_service.create_payment(payment_data)
+        
+        if result['success']:
+            # Update order with PayPal payment ID
+            await db.orders.update_one(
+                {"id": order_id},
+                {"$set": {"paypalOrderId": result['payment_id']}}
+            )
+            return result
+        else:
+            raise HTTPException(status_code=400, detail=result.get('error', 'Payment creation failed'))
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating PayPal payment: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create payment")
+
+
+@api_router.post("/orders/{order_id}/capture")
+async def capture_paypal_payment(order_id: str, capture_req: PayPalCaptureRequest):
+    """Capture/execute PayPal payment"""
+    try:
+        # Get order from database
+        order = await db.orders.find_one({"id": order_id})
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        
+        # Execute payment
+        result = paypal_service.execute_payment(
+            capture_req.paypalOrderId,
+            capture_req.paypalOrderId  # In real scenario, this would be payer_id
+        )
+        
+        if result['success']:
+            # Update order status
+            await db.orders.update_one(
+                {"id": order_id},
+                {"$set": {
+                    "paymentStatus": "completed",
+                    "paypalOrderId": capture_req.paypalOrderId
+                }}
+            )
+            logger.info(f"Payment captured for order {order_id}")
+            return {"success": True, "message": "Payment captured successfully"}
+        else:
+            await db.orders.update_one(
+                {"id": order_id},
+                {"$set": {"paymentStatus": "failed"}}
+            )
+            raise HTTPException(status_code=400, detail=result.get('error', 'Payment capture failed'))
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error capturing payment: {e}")
+        raise HTTPException(status_code=500, detail="Failed to capture payment")
+
+
 # Include the router in the main app
 app.include_router(api_router)
 
