@@ -6,12 +6,14 @@ import os
 import logging
 from pathlib import Path
 from typing import List
+from pydantic import BaseModel
 from models import (
     Product, ProductCreate,
     PortfolioItem, PortfolioItemCreate,
     ContactSubmission, ContactSubmissionCreate,
     Order, OrderCreate
 )
+from paypal_service import paypal_service
 
 
 ROOT_DIR = Path(__file__).parent
