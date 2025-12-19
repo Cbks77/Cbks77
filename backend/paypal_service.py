@@ -44,62 +44,71 @@ class PayPalService:
             logger.error(f"Error getting access token: {str(e)}")
             raise
     
-    def create_payment(self, order_data: Dict[str, Any]) -> Dict[str, Any]:
+    def create_order(self, order_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Create a PayPal payment
+        Create a PayPal order (v2 API)
         
         Args:
             order_data: Order information including items, total, etc.
             
         Returns:
-            Dictionary with payment_id and approval_url
+            Dictionary with order_id
         """
         try:
-            payment = paypalrestsdk.Payment({
-                "intent": "sale",
-                "payer": {
-                    "payment_method": "paypal"
-                },
-                "redirect_urls": {
-                    "return_url": "http://localhost:3000/payment/success",
-                    "cancel_url": "http://localhost:3000/payment/cancel"
-                },
-                "transactions": [{
-                    "item_list": {
-                        "items": order_data.get('items', [])
-                    },
-                    "amount": {
-                        "total": str(order_data.get('total', 0)),
-                        "currency": "USD"
-                    },
-                    "description": f"CBKS77 Order {order_data.get('orderNumber', '')}"
-                }]
-            })
+            access_token = self.get_access_token()
+            url = f"{self.base_url}/v2/checkout/orders"
             
-            if payment.create():
-                logger.info(f"PayPal payment created: {payment.id}")
-                
-                # Get approval URL
-                approval_url = None
-                for link in payment.links:
-                    if link.rel == "approval_url":
-                        approval_url = link.href
-                        break
-                
-                return {
-                    "success": True,
-                    "payment_id": payment.id,
-                    "approval_url": approval_url
-                }
-            else:
-                logger.error(f"PayPal payment creation failed: {payment.error}")
-                return {
-                    "success": False,
-                    "error": payment.error
-                }
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {access_token}"
+            }
+            
+            # Prepare purchase units
+            items = []
+            for item in order_data.get('items', []):
+                items.append({
+                    "name": item.get('name', 'Product'),
+                    "quantity": str(item.get('quantity', 1)),
+                    "unit_amount": {
+                        "currency_code": "USD",
+                        "value": f"{float(item.get('price', 0)):.2f}"
+                    }
+                })
+            
+            payload = {
+                "intent": "CAPTURE",
+                "purchase_units": [{
+                    "reference_id": order_data.get('orderNumber', 'ORDER'),
+                    "description": f"CBKS77 Order {order_data.get('orderNumber', '')}",
+                    "amount": {
+                        "currency_code": "USD",
+                        "value": f"{float(order_data.get('total', 0)):.2f}",
+                        "breakdown": {
+                            "item_total": {
+                                "currency_code": "USD",
+                                "value": f"{float(order_data.get('total', 0)):.2f}"
+                            }
+                        }
+                    },
+                    "items": items
+                }]
+            }
+            
+            response = requests.post(url, json=payload, headers=headers)
+            response.raise_for_status()
+            
+            result = response.json()
+            logger.info(f"PayPal order created: {result['id']}")
+            
+            return {
+                "success": True,
+                "order_id": result['id']
+            }
                 
         except Exception as e:
-            logger.error(f"Error creating PayPal payment: {str(e)}")
+            logger.error(f"Error creating PayPal order: {str(e)}")
+            if hasattr(e, 'response') and e.response:
+                logger.error(f"Response: {e.response.text}")
             return {
                 "success": False,
                 "error": str(e)
