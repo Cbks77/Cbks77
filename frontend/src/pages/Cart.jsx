@@ -179,7 +179,7 @@ const Cart = () => {
                 <div className="flex-1">
                   <h3 className="text-white font-bold text-lg mb-2">{item.name}</h3>
                   <p className="text-gray-400 text-sm mb-3">Size: {item.size}</p>
-                  <p className="text-white font-bold text-xl">${item.price.toFixed(2)}</p>
+                  <p className="text-white font-bold text-xl">£{item.price.toFixed(2)}</p>
                 </div>
 
                 {/* Quantity Controls */}
