@@ -88,15 +88,22 @@ const Cart = () => {
 
   const createPayPalOrder = async () => {
     try {
-      if (!orderId) {
-        const newOrderId = await createOrderInBackend();
-        const paymentResult = await api.createPayment(newOrderId);
-        if (paymentResult.success) {
-          return paymentResult.payment_id;
-        }
+      // Always create a new order
+      const newOrderId = await createOrderInBackend();
+      const paymentResult = await api.createPayment(newOrderId);
+      
+      if (paymentResult.success) {
+        return paymentResult.payment_id;
+      } else {
+        throw new Error('Failed to create payment');
       }
     } catch (error) {
       console.error('Error creating PayPal order:', error);
+      toast({
+        title: "Error",
+        description: "Failed to initialize payment. Please try again.",
+        variant: "destructive"
+      });
       throw error;
     }
   };
