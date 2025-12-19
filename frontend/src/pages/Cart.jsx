@@ -237,10 +237,88 @@ const Cart = () => {
                 <span>£{total.toFixed(2)}</span>
               </div>
 
-              <PayPalScriptProvider options={{ "client-id": process.env.REACT_APP_PAYPAL_CLIENT_ID }}>
+              <PayPalScriptProvider 
+                options={{ 
+                  "client-id": process.env.REACT_APP_PAYPAL_CLIENT_ID,
+                  currency: "GBP"
+                }}
+              >
                 <PayPalButtons
-                  createOrder={createPayPalOrder}
-                  onApprove={onApprove}
+                  createOrder={(data, actions) => {
+                    return actions.order.create({
+                      purchase_units: [
+                        {
+                          amount: {
+                            currency_code: "GBP",
+                            value: total.toFixed(2),
+                            breakdown: {
+                              item_total: {
+                                currency_code: "GBP",
+                                value: subtotal.toFixed(2)
+                              },
+                              shipping: {
+                                currency_code: "GBP",
+                                value: shipping.toFixed(2)
+                              }
+                            }
+                          },
+                          items: cartItems.map(item => ({
+                            name: item.name,
+                            unit_amount: {
+                              currency_code: "GBP",
+                              value: item.price.toFixed(2)
+                            },
+                            quantity: item.quantity.toString()
+                          }))
+                        }
+                      ]
+                    });
+                  }}
+                  onApprove={async (data, actions) => {
+                    try {
+                      const details = await actions.order.capture();
+                      
+                      // Create order in backend after successful payment
+                      const orderData = {
+                        items: cartItems.map(item => ({
+                          productId: item.id,
+                          productName: item.name,
+                          size: item.size,
+                          quantity: item.quantity,
+                          price: item.price
+                        })),
+                        subtotal: subtotal,
+                        shipping: shipping,
+                        total: total,
+                        customerEmail: details.payer.email_address || "customer@example.com",
+                        customerName: details.payer.name?.given_name + " " + details.payer.name?.surname || "Customer"
+                      };
+
+                      const order = await api.createOrder(orderData);
+                      
+                      // Update order with PayPal transaction ID
+                      await api.capturePayment(order.id, data.orderID);
+                      
+                      // Clear cart
+                      localStorage.removeItem('cart');
+                      setCartItems([]);
+                      
+                      toast({
+                        title: "Payment Successful!",
+                        description: `Your order #${order.orderNumber} has been placed successfully.`,
+                      });
+                      
+                      // Redirect to home
+                      navigate('/');
+                    } catch (error) {
+                      console.error('Order creation error:', error);
+                      toast({
+                        title: "Order Error",
+                        description: "Payment successful but order creation failed. Please contact support.",
+                        variant: "destructive"
+                      });
+                    }
+                  }}
                   onError={(err) => {
                     console.error('PayPal Error:', err);
                     toast({
@@ -255,7 +333,6 @@ const Cart = () => {
                     shape: 'rect',
                     label: 'paypal'
                   }}
-                  disabled={isCreatingOrder}
                 />
               </PayPalScriptProvider>
 
