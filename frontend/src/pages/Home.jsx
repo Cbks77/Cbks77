@@ -1,17 +1,28 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Play } from 'lucide-react';
+import { ArrowRight, Play, X } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { portfolioItems, products, aboutText } from '../mock';
 
 const Home = () => {
   const videoRef = useRef(null);
+  const [selectedVideo, setSelectedVideo] = useState(null);
 
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.play().catch(err => console.log('Video autoplay prevented:', err));
     }
   }, []);
+
+  const openVideoModal = (item) => {
+    if (item.type === 'video' && item.videoUrl) {
+      setSelectedVideo(item);
+    }
+  };
+
+  const closeVideoModal = () => {
+    setSelectedVideo(null);
+  };
 
   return (
     <div className="bg-black min-h-screen">
