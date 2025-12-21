@@ -170,15 +170,18 @@ frontend:
 
   - task: "Admin Dashboard - Create Product"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/pages/ProductForm.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Add Product button links to /admin/products/new. Form exists. Needs testing."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Add Product button navigates to /admin/products/new, form accepts all required fields (name, price, image URL, description, sizes), Create Product button submits successfully, redirects back to dashboard, new product appears in the list immediately."
 
   - task: "Admin Dashboard - Portfolio CRUD"
     implemented: true
