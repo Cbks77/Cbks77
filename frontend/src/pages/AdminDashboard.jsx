@@ -205,44 +205,58 @@ const AdminDashboard = ({ onLogout }) => {
             </div>
           </div>
           <div className="p-8">
-            <div className="space-y-6">
-              {products.map((product) => (
-                <div
-                  key={product.id}
-                  className="flex items-center justify-between p-6 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-zinc-700 transition-colors"
-                >
-                  <div className="flex items-center space-x-6">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
-                    />
-                    <div>
-                      <h3 className="text-white font-bold text-lg mb-1">{product.name}</h3>
-                      <p className="text-gray-400 text-base">£{product.price.toFixed(2)}</p>
-                      <p className="text-gray-500 text-sm mt-1">{product.inStock ? 'In Stock' : 'Out of Stock'}</p>
+            {products.length === 0 ? (
+              <div className="text-center py-12">
+                <Package className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                <h3 className="text-white text-xl font-bold mb-2">No Products Yet</h3>
+                <p className="text-gray-400 mb-6">Start by adding your first product</p>
+                <Link to="/admin/products/new">
+                  <Button className="bg-red-500 hover:bg-red-600 text-white">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Your First Product
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {products.map((product) => (
+                  <div
+                    key={product.id}
+                    className="flex items-center justify-between p-6 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-zinc-700 transition-colors"
+                  >
+                    <div className="flex items-center space-x-6">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
+                      />
+                      <div>
+                        <h3 className="text-white font-bold text-lg mb-1">{product.name}</h3>
+                        <p className="text-gray-400 text-base">£{product.price.toFixed(2)}</p>
+                        <p className="text-gray-500 text-sm mt-1">{product.inStock ? 'In Stock' : 'Out of Stock'}</p>
+                      </div>
+                    </div>
+                    <div className="flex space-x-3">
+                      <Link to={`/admin/products/edit/${product.id}`}>
+                        <Button size="sm" variant="outline" className="border-zinc-700 text-white hover:bg-zinc-800 h-10 px-4">
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit
+                        </Button>
+                      </Link>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-10 px-4"
+                        onClick={() => deleteProduct(product.id)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex space-x-3">
-                    <Link to={`/admin/products/edit/${product.id}`}>
-                      <Button size="sm" variant="outline" className="border-zinc-700 text-white hover:bg-zinc-800 h-10 px-4">
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit
-                      </Button>
-                    </Link>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-10 px-4"
-                      onClick={() => deleteProduct(product.id)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
