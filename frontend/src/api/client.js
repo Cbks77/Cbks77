@@ -77,6 +77,36 @@ export const api = {
     }
   },
 
+  createPortfolioItem: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/portfolio`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating portfolio item:', error);
+      throw error;
+    }
+  },
+
+  updatePortfolioItem: async (id, data) => {
+    try {
+      const response = await axios.put(`${API_URL}/portfolio/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating portfolio item:', error);
+      throw error;
+    }
+  },
+
+  deletePortfolioItem: async (id) => {
+    try {
+      const response = await axios.delete(`${API_URL}/portfolio/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting portfolio item:', error);
+      throw error;
+    }
+  },
+
   // Contact
   submitContact: async (data) => {
     try {
