@@ -113,8 +113,9 @@ const AdminDashboard = ({ onLogout }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading dashboard...</div>
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center">
+        <div className="text-white text-2xl mb-4">Loading dashboard...</div>
+        <div className="text-gray-400">Please wait</div>
       </div>
     );
   }
@@ -151,6 +152,12 @@ const AdminDashboard = ({ onLogout }) => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {error && (
+          <div className="mb-8 bg-red-500/10 border border-red-500 rounded-lg p-4">
+            <p className="text-red-500">{error}</p>
+          </div>
+        )}
+        
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-6">
