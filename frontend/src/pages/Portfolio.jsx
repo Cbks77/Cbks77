@@ -78,33 +78,33 @@ const Portfolio = () => {
 
       {/* Modal for viewing work */}
       <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
-        <DialogContent className="bg-zinc-950 border-zinc-800 max-w-4xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-white">
-              {selectedItem?.title}
-            </DialogTitle>
-          </DialogHeader>
+        <DialogContent className="bg-zinc-950 border-zinc-800 max-w-5xl p-0">
           {selectedItem && (
-            <div className="space-y-4">
+            <div className="relative">
               {selectedItem.type === 'video' ? (
-                <video
-                  controls
-                  className="w-full rounded-lg"
-                  poster={selectedItem.thumbnail}
-                >
-                  <source src={selectedItem.videoUrl} type="video/mp4" />
-                </video>
+                <div className="w-full bg-black">
+                  <video
+                    controls
+                    autoPlay
+                    className="w-full max-h-[80vh]"
+                    poster={selectedItem.thumbnail}
+                  >
+                    <source src={selectedItem.videoUrl} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
               ) : (
                 <img
                   src={selectedItem.thumbnail}
                   alt={selectedItem.title}
-                  className="w-full rounded-lg"
+                  className="w-full"
                 />
               )}
-              <div>
+              <div className="p-6">
                 <span className="inline-block px-3 py-1 bg-red-500 text-white text-xs font-bold uppercase mb-3">
                   {selectedItem.category}
                 </span>
+                <h2 className="text-2xl font-bold text-white mb-2">{selectedItem.title}</h2>
                 <p className="text-gray-400">{selectedItem.description}</p>
               </div>
             </div>
