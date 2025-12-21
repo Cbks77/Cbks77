@@ -10,7 +10,7 @@ import Cart from "./pages/Cart";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import AdminLogin from "./pages/AdminLogin";
-import AdminDashboard from "./pages/AdminDashboard";
+import SimpleAdminDashboard from "./pages/SimpleAdminDashboard";
 import ProductForm from "./pages/ProductForm";
 import PortfolioForm from "./pages/PortfolioForm";
 import { Toaster } from "./components/ui/toaster";
