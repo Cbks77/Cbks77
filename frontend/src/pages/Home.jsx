@@ -137,6 +137,11 @@ const Home = () => {
               <div
                 key={item.id}
                 className="group relative overflow-hidden bg-zinc-900 aspect-square cursor-pointer transform hover:scale-[1.02] transition-all"
+                onClick={() => {
+                  if (item.type === 'video' && item.videoUrl) {
+                    window.open(item.videoUrl, '_blank');
+                  }
+                }}
               >
                 <img
                   src={item.thumbnail}
@@ -153,7 +158,7 @@ const Home = () => {
                   </div>
                   {item.type === 'video' && (
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                      <div className="bg-red-500 rounded-full p-4">
+                      <div className="bg-red-500 rounded-full p-4 animate-pulse">
                         <Play className="h-8 w-8 text-white fill-white" />
                       </div>
                     </div>
