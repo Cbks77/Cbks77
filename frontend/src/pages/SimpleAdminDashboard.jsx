@@ -1,18 +1,134 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Package, Image as ImageIcon, LogOut, Plus, Edit, Trash2 } from 'lucide-react';
-import { products as mockProducts, portfolioItems as mockPortfolio } from '../mock';
+import { Package, Image as ImageIcon, LogOut, Plus, Edit, Trash2, RefreshCw, AlertCircle } from 'lucide-react';
+import { api } from '../api/client';
+import { useToast } from '../hooks/use-toast';
 
 const SimpleAdminDashboard = ({ onLogout }) => {
   const navigate = useNavigate();
-  const [products] = useState(mockProducts);
-  const [portfolio] = useState(mockPortfolio);
+  const { toast } = useToast();
+  
+  const [products, setProducts] = useState([]);
+  const [portfolio, setPortfolio] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [deleting, setDeleting] = useState(null);
+
+  // Fetch data from API on mount
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const [productsData, portfolioData] = await Promise.all([
+        api.getProducts(),
+        api.getPortfolio()
+      ]);
+      
+      setProducts(productsData || []);
+      setPortfolio(portfolioData || []);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      setError('Failed to load data. Please try again.');
+      toast({
+        title: "Error",
+        description: "Failed to load data from server",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('adminAuth');
     onLogout(false);
     navigate('/admin');
   };
+
+  const handleDeleteProduct = async (productId) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) {
+      return;
+    }
+    
+    setDeleting(productId);
+    try {
+      await api.deleteProduct(productId);
+      setProducts(products.filter(p => p.id !== productId));
+      toast({
+        title: "Product Deleted",
+        description: "Product has been removed successfully",
+      });
+    } catch (err) {
+      console.error('Error deleting product:', err);
+      toast({
+        title: "Error",
+        description: "Failed to delete product",
+        variant: "destructive"
+      });
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const handleDeletePortfolio = async (itemId) => {
+    if (!window.confirm('Are you sure you want to delete this portfolio item?')) {
+      return;
+    }
+    
+    setDeleting(itemId);
+    try {
+      await api.deletePortfolioItem(itemId);
+      setPortfolio(portfolio.filter(p => p.id !== itemId));
+      toast({
+        title: "Portfolio Deleted",
+        description: "Portfolio item has been removed successfully",
+      });
+    } catch (err) {
+      console.error('Error deleting portfolio item:', err);
+      toast({
+        title: "Error",
+        description: "Failed to delete portfolio item",
+        variant: "destructive"
+      });
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="h-12 w-12 text-red-500 animate-spin mx-auto mb-4" />
+          <p className="text-white text-xl">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <p className="text-white text-xl mb-4">{error}</p>
+          <button
+            onClick={fetchData}
+            className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded font-semibold"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black">
@@ -27,6 +143,13 @@ const SimpleAdminDashboard = ({ onLogout }) => {
               <p className="text-gray-400 text-lg">Admin Dashboard</p>
             </div>
             <div className="flex items-center space-x-4">
+              <button
+                onClick={fetchData}
+                className="px-4 py-3 border-2 border-zinc-700 text-white hover:bg-zinc-900 rounded font-semibold flex items-center"
+                title="Refresh Data"
+              >
+                <RefreshCw className="h-5 w-5" />
+              </button>
               <Link to="/">
                 <button className="px-6 py-3 border-2 border-zinc-700 text-white hover:bg-zinc-900 rounded font-semibold">
                   View Site
@@ -93,39 +216,55 @@ const SimpleAdminDashboard = ({ onLogout }) => {
           </div>
           
           <div className="p-8">
-            <div className="space-y-6">
-              {products.map((product) => (
-                <div
-                  key={product.id}
-                  className="flex items-center justify-between p-8 bg-zinc-900 border-2 border-zinc-800 rounded-xl hover:border-red-500 transition-all"
-                >
-                  <div className="flex items-center space-x-8">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-24 h-24 object-cover rounded-lg border-2 border-zinc-700"
-                    />
-                    <div>
-                      <h3 className="text-white font-bold text-2xl mb-2">{product.name}</h3>
-                      <p className="text-red-500 text-xl font-bold">£{product.price.toFixed(2)}</p>
-                      <p className="text-gray-400 text-base mt-2">{product.inStock ? '✓ In Stock' : '✗ Out of Stock'}</p>
+            {products.length === 0 ? (
+              <div className="text-center py-12">
+                <Package className="h-16 w-16 text-zinc-700 mx-auto mb-4" />
+                <p className="text-gray-400 text-lg">No products yet. Add your first product!</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {products.map((product) => (
+                  <div
+                    key={product.id}
+                    className="flex items-center justify-between p-8 bg-zinc-900 border-2 border-zinc-800 rounded-xl hover:border-red-500 transition-all"
+                  >
+                    <div className="flex items-center space-x-8">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-24 h-24 object-cover rounded-lg border-2 border-zinc-700"
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/96?text=No+Image';
+                        }}
+                      />
+                      <div>
+                        <h3 className="text-white font-bold text-2xl mb-2">{product.name}</h3>
+                        <p className="text-red-500 text-xl font-bold">£{(product.price || 0).toFixed(2)}</p>
+                        <p className="text-gray-400 text-base mt-2">
+                          {product.inStock ? '✓ In Stock' : '✗ Out of Stock'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex space-x-4">
+                      <Link to={`/admin/products/edit/${product.id}`}>
+                        <button className="border-2 border-zinc-700 text-white hover:bg-zinc-800 px-6 py-3 rounded-lg font-bold flex items-center">
+                          <Edit className="h-5 w-5 mr-2" />
+                          Edit
+                        </button>
+                      </Link>
+                      <button 
+                        onClick={() => handleDeleteProduct(product.id)}
+                        disabled={deleting === product.id}
+                        className="border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-6 py-3 rounded-lg font-bold flex items-center disabled:opacity-50"
+                      >
+                        <Trash2 className="h-5 w-5 mr-2" />
+                        {deleting === product.id ? 'Deleting...' : 'Delete'}
+                      </button>
                     </div>
                   </div>
-                  <div className="flex space-x-4">
-                    <Link to={`/admin/products/edit/${product.id}`}>
-                      <button className="border-2 border-zinc-700 text-white hover:bg-zinc-800 px-6 py-3 rounded-lg font-bold flex items-center">
-                        <Edit className="h-5 w-5 mr-2" />
-                        Edit
-                      </button>
-                    </Link>
-                    <button className="border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-6 py-3 rounded-lg font-bold flex items-center">
-                      <Trash2 className="h-5 w-5 mr-2" />
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -147,38 +286,52 @@ const SimpleAdminDashboard = ({ onLogout }) => {
           </div>
           
           <div className="p-8">
-            <div className="space-y-6">
-              {portfolio.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between p-8 bg-zinc-900 border-2 border-zinc-800 rounded-xl hover:border-red-500 transition-all"
-                >
-                  <div className="flex items-center space-x-8">
-                    <img
-                      src={item.thumbnail}
-                      alt={item.title}
-                      className="w-24 h-24 object-cover rounded-lg border-2 border-zinc-700"
-                    />
-                    <div>
-                      <h3 className="text-white font-bold text-2xl mb-2">{item.title}</h3>
-                      <p className="text-gray-400 text-lg">{item.category} • {item.type}</p>
+            {portfolio.length === 0 ? (
+              <div className="text-center py-12">
+                <ImageIcon className="h-16 w-16 text-zinc-700 mx-auto mb-4" />
+                <p className="text-gray-400 text-lg">No portfolio items yet. Add your first work!</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {portfolio.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between p-8 bg-zinc-900 border-2 border-zinc-800 rounded-xl hover:border-red-500 transition-all"
+                  >
+                    <div className="flex items-center space-x-8">
+                      <img
+                        src={item.thumbnail}
+                        alt={item.title}
+                        className="w-24 h-24 object-cover rounded-lg border-2 border-zinc-700"
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/96?text=No+Image';
+                        }}
+                      />
+                      <div>
+                        <h3 className="text-white font-bold text-2xl mb-2">{item.title}</h3>
+                        <p className="text-gray-400 text-lg">{item.category} • {item.type}</p>
+                      </div>
+                    </div>
+                    <div className="flex space-x-4">
+                      <Link to={`/admin/portfolio/edit/${item.id}`}>
+                        <button className="border-2 border-zinc-700 text-white hover:bg-zinc-800 px-6 py-3 rounded-lg font-bold flex items-center">
+                          <Edit className="h-5 w-5 mr-2" />
+                          Edit
+                        </button>
+                      </Link>
+                      <button 
+                        onClick={() => handleDeletePortfolio(item.id)}
+                        disabled={deleting === item.id}
+                        className="border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-6 py-3 rounded-lg font-bold flex items-center disabled:opacity-50"
+                      >
+                        <Trash2 className="h-5 w-5 mr-2" />
+                        {deleting === item.id ? 'Deleting...' : 'Delete'}
+                      </button>
                     </div>
                   </div>
-                  <div className="flex space-x-4">
-                    <Link to={`/admin/portfolio/edit/${item.id}`}>
-                      <button className="border-2 border-zinc-700 text-white hover:bg-zinc-800 px-6 py-3 rounded-lg font-bold flex items-center">
-                        <Edit className="h-5 w-5 mr-2" />
-                        Edit
-                      </button>
-                    </Link>
-                    <button className="border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-6 py-3 rounded-lg font-bold flex items-center">
-                      <Trash2 className="h-5 w-5 mr-2" />
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
