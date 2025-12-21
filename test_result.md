@@ -185,15 +185,18 @@ frontend:
 
   - task: "Admin Dashboard - Portfolio CRUD"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/pages/PortfolioForm.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Portfolio edit/create forms exist. Delete functionality added. Needs testing."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Portfolio section displays 6 items correctly, Edit buttons navigate to /admin/portfolio/edit/{id}, portfolio edit form loads with populated data, Back to Dashboard works. Portfolio functionality is operational."
 
 backend:
   - task: "Products API CRUD"
