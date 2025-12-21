@@ -155,15 +155,18 @@ frontend:
 
   - task: "Admin Dashboard - Delete Product"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/pages/SimpleAdminDashboard.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Delete functionality implemented with confirmation dialog. Needs testing."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Delete buttons are visible on all products, confirmation dialog appears when clicked, products are successfully removed from the list after confirmation. Delete functionality working correctly."
 
   - task: "Admin Dashboard - Create Product"
     implemented: true
