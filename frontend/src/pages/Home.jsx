@@ -253,6 +253,39 @@ const Home = () => {
           </div>
         </div>
       </section>
+      
+      {/* Video Modal */}
+      {selectedVideo && (
+        <div 
+          className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4"
+          onClick={closeVideoModal}
+        >
+          <button
+            onClick={closeVideoModal}
+            className="absolute top-4 right-4 text-white hover:text-red-500 z-50"
+          >
+            <X className="h-10 w-10" />
+          </button>
+          <div 
+            className="w-full max-w-6xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <video
+              controls
+              autoPlay
+              className="w-full rounded-lg"
+              poster={selectedVideo.thumbnail}
+            >
+              <source src={selectedVideo.videoUrl} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            <div className="mt-4 text-center">
+              <h3 className="text-white text-2xl font-bold mb-2">{selectedVideo.title}</h3>
+              <p className="text-gray-400">{selectedVideo.description}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
