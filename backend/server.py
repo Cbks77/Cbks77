@@ -76,6 +76,39 @@ async def create_product(product: ProductCreate):
         raise HTTPException(status_code=500, detail="Failed to create product")
 
 
+@api_router.put("/products/{product_id}", response_model=Product)
+async def update_product(product_id: str, product: ProductCreate):
+    """Update a product"""
+    try:
+        existing = await db.products.find_one({"id": product_id})
+        if not existing:
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        updated_product = Product(id=product_id, **product.model_dump())
+        await db.products.replace_one({"id": product_id}, updated_product.model_dump())
+        return updated_product
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating product: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update product")
+
+
+@api_router.delete("/products/{product_id}")
+async def delete_product(product_id: str):
+    """Delete a product"""
+    try:
+        result = await db.products.delete_one({"id": product_id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Product not found")
+        return {"message": "Product deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting product: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete product")
+
+
 # Portfolio Endpoints
 @api_router.get("/portfolio", response_model=List[PortfolioItem])
 async def get_portfolio():
