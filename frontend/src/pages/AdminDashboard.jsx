@@ -10,6 +10,7 @@ const AdminDashboard = ({ onLogout }) => {
   const [portfolio, setPortfolio] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -18,34 +19,45 @@ const AdminDashboard = ({ onLogout }) => {
   }, []);
 
   const loadData = async () => {
+    setLoading(true);
+    setError(null);
+    
     try {
-      // Try to load from API
-      const [productsData, portfolioData] = await Promise.all([
-        api.getProducts().catch(() => []),
-        api.getPortfolio().catch(() => [])
-      ]);
+      console.log('Loading dashboard data...');
       
-      setProducts(productsData);
-      setPortfolio(portfolioData);
+      // Try to load products
+      try {
+        const productsData = await api.getProducts();
+        console.log('Products loaded:', productsData);
+        setProducts(productsData || []);
+      } catch (err) {
+        console.error('Failed to load products:', err);
+        setProducts([]);
+      }
       
-      // For contacts, just use empty array if fails
+      // Try to load portfolio
+      try {
+        const portfolioData = await api.getPortfolio();
+        console.log('Portfolio loaded:', portfolioData);
+        setPortfolio(portfolioData || []);
+      } catch (err) {
+        console.error('Failed to load portfolio:', err);
+        setPortfolio([]);
+      }
+      
+      // Try to load contacts
       try {
         const contactsData = await api.getContacts();
+        console.log('Contacts loaded:', contactsData);
         setContacts(contactsData || []);
-      } catch (error) {
+      } catch (err) {
+        console.error('Failed to load contacts:', err);
         setContacts([]);
       }
-    } catch (error) {
-      console.error('Error loading data:', error);
-      // Use empty arrays as fallback
-      setProducts([]);
-      setPortfolio([]);
-      setContacts([]);
       
-      toast({
-        title: "Note",
-        description: "Displaying current data. Refresh if you don't see updates.",
-      });
+    } catch (error) {
+      console.error('Error loading dashboard:', error);
+      setError('Failed to load some data. You can still add new items.');
     } finally {
       setLoading(false);
     }
