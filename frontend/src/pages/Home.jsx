@@ -148,11 +148,7 @@ const Home = () => {
               <div
                 key={item.id}
                 className="group relative overflow-hidden bg-zinc-900 aspect-square cursor-pointer transform hover:scale-[1.02] transition-all"
-                onClick={() => {
-                  if (item.type === 'video' && item.videoUrl) {
-                    window.open(item.videoUrl, '_blank');
-                  }
-                }}
+                onClick={() => openVideoModal(item)}
               >
                 <img
                   src={item.thumbnail}
