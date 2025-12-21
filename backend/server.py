@@ -148,6 +148,39 @@ async def create_portfolio_item(item: PortfolioItemCreate):
         raise HTTPException(status_code=500, detail="Failed to create portfolio item")
 
 
+@api_router.put("/portfolio/{item_id}", response_model=PortfolioItem)
+async def update_portfolio_item(item_id: str, item: PortfolioItemCreate):
+    """Update a portfolio item"""
+    try:
+        existing = await db.portfolio.find_one({"id": item_id})
+        if not existing:
+            raise HTTPException(status_code=404, detail="Portfolio item not found")
+        
+        updated_item = PortfolioItem(id=item_id, **item.model_dump())
+        await db.portfolio.replace_one({"id": item_id}, updated_item.model_dump())
+        return updated_item
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating portfolio item: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update portfolio item")
+
+
+@api_router.delete("/portfolio/{item_id}")
+async def delete_portfolio_item(item_id: str):
+    """Delete a portfolio item"""
+    try:
+        result = await db.portfolio.delete_one({"id": item_id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Portfolio item not found")
+        return {"message": "Portfolio item deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting portfolio item: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete portfolio item")
+
+
 # Contact Endpoints
 @api_router.post("/contact", response_model=ContactSubmission)
 async def submit_contact_form(submission: ContactSubmissionCreate):
