@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { useToast } from '../hooks/use-toast';
 
 const AdminLogin = ({ onLogin }) => {
@@ -11,7 +10,7 @@ const AdminLogin = ({ onLogin }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Simple password authentication (replace with proper auth in production)
+  // Simple password authentication
   const ADMIN_PASSWORD = 'cbks77admin2024';
 
   const handleLogin = (e) => {
@@ -40,43 +39,50 @@ const AdminLogin = ({ onLogin }) => {
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-zinc-950 border-zinc-800">
-        <CardHeader className="text-center">
-          <div className="mb-4">
-            <h1 className="text-4xl font-black text-white">
-              CBKS<span className="text-red-500">77</span>
-            </h1>
-          </div>
-          <CardTitle className="text-white text-2xl">Admin Login</CardTitle>
-          <CardDescription className="text-gray-400">
-            Enter your password to access the dashboard
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <h1 className="text-5xl font-black text-white mb-2">
+            CBKS<span className="text-red-500">77</span>
+          </h1>
+          <p className="text-gray-400">Admin Dashboard</p>
+        </div>
+
+        {/* Login Card */}
+        <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-8">
+          <h2 className="text-white text-2xl font-bold mb-2">Login</h2>
+          <p className="text-gray-400 mb-6">Enter your password to access the dashboard</p>
+
+          <form onSubmit={handleLogin} className="space-y-6">
             <div>
+              <label htmlFor="password" className="block text-white font-semibold mb-2">
+                Password
+              </label>
               <Input
+                id="password"
                 type="password"
                 placeholder="Enter admin password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-zinc-900 border-zinc-700 text-white"
+                className="bg-zinc-900 border-zinc-700 text-white h-12 text-lg"
                 required
+                autoFocus
               />
               <p className="text-xs text-gray-500 mt-2">
-                Default password: cbks77admin2024
+                Default: cbks77admin2024
               </p>
             </div>
+
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-red-500 hover:bg-red-600 text-white font-bold"
+              className="w-full bg-red-500 hover:bg-red-600 text-white font-bold h-12 text-lg"
             >
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? 'Logging in...' : 'Login to Dashboard'}
             </Button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
