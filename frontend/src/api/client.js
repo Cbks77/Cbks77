@@ -118,6 +118,16 @@ export const api = {
     }
   },
 
+  getContacts: async () => {
+    try {
+      const response = await axios.get(`${API_URL}/contact`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+      return [];
+    }
+  },
+
   // Orders
   createOrder: async (orderData) => {
     try {
