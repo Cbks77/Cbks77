@@ -144,11 +144,14 @@ frontend:
     file: "/app/frontend/src/pages/ProductForm.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Edit form loads correctly with product data from API. Tested clicking Edit on UNBOTHERED Hoodie - form populated correctly."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Edit buttons are visible on products, clicking Edit navigates to /admin/products/edit/{id}, form loads with populated data, image preview works, Back to Dashboard button functions correctly."
 
   - task: "Admin Dashboard - Delete Product"
     implemented: true
