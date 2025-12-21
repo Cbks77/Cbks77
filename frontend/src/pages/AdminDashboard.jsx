@@ -100,10 +100,10 @@ const AdminDashboard = ({ onLogout }) => {
     <div className="min-h-screen bg-black">
       {/* Header */}
       <header className="bg-zinc-950 border-b border-zinc-800 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-black text-white">
+              <h1 className="text-4xl font-black text-white mb-1">
                 CBKS<span className="text-red-500">77</span>
               </h1>
               <p className="text-gray-400 text-sm">Admin Dashboard</p>
@@ -127,152 +127,151 @@ const AdminDashboard = ({ onLogout }) => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-zinc-950 border-zinc-800">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-white text-sm font-medium">Products</CardTitle>
-              <Package className="h-4 w-4 text-gray-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-white">{products.length}</div>
-              <p className="text-xs text-gray-400 mt-1">Total products in shop</p>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+          <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white text-lg font-semibold">Products</h3>
+              <Package className="h-6 w-6 text-gray-400" />
+            </div>
+            <div className="text-4xl font-bold text-white mb-2">{products.length}</div>
+            <p className="text-sm text-gray-400">Total products in shop</p>
+          </div>
 
-          <Card className="bg-zinc-950 border-zinc-800">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-white text-sm font-medium">Portfolio Items</CardTitle>
-              <Image className="h-4 w-4 text-gray-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-white">{portfolio.length}</div>
-              <p className="text-xs text-gray-400 mt-1">Animation works</p>
-            </CardContent>
-          </Card>
+          <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white text-lg font-semibold">Portfolio Items</h3>
+              <Image className="h-6 w-6 text-gray-400" />
+            </div>
+            <div className="text-4xl font-bold text-white mb-2">{portfolio.length}</div>
+            <p className="text-sm text-gray-400">Animation works</p>
+          </div>
 
-          <Card className="bg-zinc-950 border-zinc-800">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-white text-sm font-medium">Contact Messages</CardTitle>
-              <MessageSquare className="h-4 w-4 text-gray-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-white">{contacts.length}</div>
-              <p className="text-xs text-gray-400 mt-1">Unread messages</p>
-            </CardContent>
-          </Card>
+          <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white text-lg font-semibold">Messages</h3>
+              <MessageSquare className="h-6 w-6 text-gray-400" />
+            </div>
+            <div className="text-4xl font-bold text-white mb-2">{contacts.length}</div>
+            <p className="text-sm text-gray-400">Contact submissions</p>
+          </div>
         </div>
 
         {/* Products Section */}
-        <Card className="bg-zinc-950 border-zinc-800 mb-8">
-          <CardHeader>
+        <div className="bg-zinc-950 border border-zinc-800 rounded-lg mb-12">
+          <div className="p-8 border-b border-zinc-800">
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle className="text-white text-2xl">Products</CardTitle>
-                <CardDescription className="text-gray-400">Manage your shop products</CardDescription>
+                <h2 className="text-white text-3xl font-bold mb-2">Products</h2>
+                <p className="text-gray-400">Manage your shop products</p>
               </div>
               <Link to="/admin/products/new">
-                <Button className="bg-red-500 hover:bg-red-600 text-white">
-                  <Plus className="mr-2 h-4 w-4" />
+                <Button className="bg-red-500 hover:bg-red-600 text-white font-bold h-12 px-6">
+                  <Plus className="mr-2 h-5 w-5" />
                   Add Product
                 </Button>
               </Link>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          </div>
+          <div className="p-8">
+            <div className="space-y-6">
               {products.map((product) => (
                 <div
                   key={product.id}
-                  className="flex items-center justify-between p-4 bg-zinc-900 border border-zinc-800 rounded-lg"
+                  className="flex items-center justify-between p-6 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-zinc-700 transition-colors"
                 >
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-6">
                     <img
                       src={product.image}
                       alt={product.name}
-                      className="w-16 h-16 object-cover rounded"
+                      className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
                     />
                     <div>
-                      <h3 className="text-white font-semibold">{product.name}</h3>
-                      <p className="text-gray-400 text-sm">£{product.price.toFixed(2)}</p>
+                      <h3 className="text-white font-bold text-lg mb-1">{product.name}</h3>
+                      <p className="text-gray-400 text-base">£{product.price.toFixed(2)}</p>
+                      <p className="text-gray-500 text-sm mt-1">{product.inStock ? 'In Stock' : 'Out of Stock'}</p>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-3">
                     <Link to={`/admin/products/edit/${product.id}`}>
-                      <Button size="sm" variant="outline" className="border-zinc-700 text-white">
-                        <Edit className="h-4 w-4" />
+                      <Button size="sm" variant="outline" className="border-zinc-700 text-white hover:bg-zinc-800 h-10 px-4">
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
                       </Button>
                     </Link>
                     <Button
                       size="sm"
                       variant="outline"
-                      className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                      className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-10 px-4"
                       onClick={() => deleteProduct(product.id)}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
                     </Button>
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Portfolio Section */}
-        <Card className="bg-zinc-950 border-zinc-800">
-          <CardHeader>
+        <div className="bg-zinc-950 border border-zinc-800 rounded-lg">
+          <div className="p-8 border-b border-zinc-800">
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle className="text-white text-2xl">Portfolio</CardTitle>
-                <CardDescription className="text-gray-400">Manage your animation works</CardDescription>
+                <h2 className="text-white text-3xl font-bold mb-2">Portfolio</h2>
+                <p className="text-gray-400">Manage your animation works</p>
               </div>
               <Link to="/admin/portfolio/new">
-                <Button className="bg-red-500 hover:bg-red-600 text-white">
-                  <Plus className="mr-2 h-4 w-4" />
+                <Button className="bg-red-500 hover:bg-red-600 text-white font-bold h-12 px-6">
+                  <Plus className="mr-2 h-5 w-5" />
                   Add Work
                 </Button>
               </Link>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          </div>
+          <div className="p-8">
+            <div className="space-y-6">
               {portfolio.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between p-4 bg-zinc-900 border border-zinc-800 rounded-lg"
+                  className="flex items-center justify-between p-6 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-zinc-700 transition-colors"
                 >
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-6">
                     <img
                       src={item.thumbnail}
                       alt={item.title}
-                      className="w-16 h-16 object-cover rounded"
+                      className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
                     />
                     <div>
-                      <h3 className="text-white font-semibold">{item.title}</h3>
-                      <p className="text-gray-400 text-sm">{item.category} • {item.type}</p>
+                      <h3 className="text-white font-bold text-lg mb-1">{item.title}</h3>
+                      <p className="text-gray-400 text-base">{item.category} • {item.type}</p>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-3">
                     <Link to={`/admin/portfolio/edit/${item.id}`}>
-                      <Button size="sm" variant="outline" className="border-zinc-700 text-white">
-                        <Edit className="h-4 w-4" />
+                      <Button size="sm" variant="outline" className="border-zinc-700 text-white hover:bg-zinc-800 h-10 px-4">
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
                       </Button>
                     </Link>
                     <Button
                       size="sm"
                       variant="outline"
-                      className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                      className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-10 px-4"
                       onClick={() => deletePortfolioItem(item.id)}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
                     </Button>
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
