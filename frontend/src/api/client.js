@@ -26,6 +26,36 @@ export const api = {
     }
   },
 
+  createProduct: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/products`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating product:', error);
+      throw error;
+    }
+  },
+
+  updateProduct: async (id, data) => {
+    try {
+      const response = await axios.put(`${API_URL}/products/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating product:', error);
+      throw error;
+    }
+  },
+
+  deleteProduct: async (id) => {
+    try {
+      const response = await axios.delete(`${API_URL}/products/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      throw error;
+    }
+  },
+
   // Portfolio
   getPortfolio: async () => {
     try {
