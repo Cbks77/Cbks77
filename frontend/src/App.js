@@ -108,7 +108,7 @@ function App() {
           <Route path="/admin" element={<AdminLogin onLogin={setIsAdminAuthenticated} />} />
           <Route path="/admin/dashboard" element={
             <ProtectedRoute>
-              <AdminDashboard onLogout={setIsAdminAuthenticated} />
+              <SimpleAdminDashboard onLogout={setIsAdminAuthenticated} />
             </ProtectedRoute>
           } />
           <Route path="/admin/products/new" element={
