@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Package, Image, MessageSquare, LogOut, Plus, Edit, Trash2 } from 'lucide-react';
 import { api } from '../api/client';
 import { useToast } from '../hooks/use-toast';
