@@ -198,6 +198,18 @@ frontend:
         agent: "testing"
         comment: "✅ TESTED: Portfolio section displays 6 items correctly, Edit buttons navigate to /admin/portfolio/edit/{id}, portfolio edit form loads with populated data, Back to Dashboard works. Portfolio functionality is operational."
 
+  - task: "PayPal Checkout Flow"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/pages/Cart.jsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUE: PayPal checkout flow is broken. Shop page works, Add to Cart works, Cart displays items with correct GBP (£) pricing. PayPal integration is properly configured with @paypal/react-paypal-js library, sandbox credentials, and backend API endpoints. However, PayPal button requests fail with net::ERR_ABORTED errors - PayPal SDK cannot load resources from sandbox.paypal.com and paypalobjects.com. This prevents PayPal checkout button from appearing. Issue appears to be network/CORS related blocking external PayPal resources. Backend PayPal service implementation is correct."
+
 backend:
   - task: "Products API CRUD"
     implemented: true
