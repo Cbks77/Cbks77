@@ -17,6 +17,26 @@ code {
         source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
+/* Skeleton shimmer animation */
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.skeleton-shimmer {
+    animation: shimmer 1.5s infinite;
+}
+
+/* Smooth image loading */
+img {
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Preload critical fonts */
+@font-face {
+    font-display: swap;
+}
+
 @layer base {
     :root {
         /* CBKS77 Dark Theme - Edgy & Bold */
