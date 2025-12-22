@@ -39,6 +39,19 @@ app = FastAPI(title="CBKS77 Portfolio & Merch API")
 api_router = APIRouter(prefix="/api")
 
 
+# Health check endpoint for Kubernetes (must be at root level, not under /api)
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Kubernetes deployment"""
+    try:
+        # Test MongoDB connection
+        await client.admin.command('ping')
+        return {"status": "healthy", "database": "connected"}
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return {"status": "healthy", "database": "disconnected"}
+
+
 # Root endpoint
 @api_router.get("/")
 async def root():
