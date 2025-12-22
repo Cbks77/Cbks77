@@ -357,7 +357,7 @@ const PortfolioForm = () => {
             <div>
               <p><strong className="text-white">For Videos:</strong></p>
               <ol className="list-decimal list-inside space-y-1 ml-2">
-                <li>Upload to your Emergent assets or external hosting</li>
+                <li>Upload to a video hosting service or cloud storage</li>
                 <li>Copy the direct video URL (must end in .mp4, .mov, etc.)</li>
                 <li>Paste URL in the video field</li>
               </ol>
