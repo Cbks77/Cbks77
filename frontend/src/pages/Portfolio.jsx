@@ -1,16 +1,49 @@
-import React, { useState } from 'react';
-import { Play } from 'lucide-react';
-import { portfolioItems } from '../mock';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
+import React, { useState, useEffect } from 'react';
+import { Play, X, Loader2 } from 'lucide-react';
+import { api } from '../api/client';
+import MediaGallery from '../components/MediaGallery';
 
 const Portfolio = () => {
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [portfolioItems, setPortfolioItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All');
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  // Fetch portfolio from API
+  useEffect(() => {
+    const fetchPortfolio = async () => {
+      try {
+        const data = await api.getPortfolio();
+        setPortfolioItems(data || []);
+      } catch (error) {
+        console.error('Error fetching portfolio:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPortfolio();
+  }, []);
 
   const categories = ['All', ...new Set(portfolioItems.map(item => item.category))];
   const filteredItems = filter === 'All' 
     ? portfolioItems 
     : portfolioItems.filter(item => item.category === filter);
+
+  const openModal = (item) => {
+    setSelectedItem(item);
+  };
+
+  const closeModal = () => {
+    setSelectedItem(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-black min-h-screen pt-32 flex items-center justify-center">
+        <Loader2 className="h-12 w-12 text-red-500 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-black min-h-screen pt-32 pb-24">
@@ -21,17 +54,17 @@ const Portfolio = () => {
             Portfolio
           </h1>
           <p className="text-xl text-gray-400 max-w-2xl">
-            A collection of animation work, character designs, and visual storytelling projects.
+            A collection of animations, character designs, and creative projects that push boundaries and tell stories.
           </p>
         </div>
 
-        {/* Filter Buttons */}
-        <div className="flex flex-wrap gap-3 mb-12">
+        {/* Filter Tabs */}
+        <div className="flex flex-wrap gap-4 mb-12">
           {categories.map((category) => (
             <button
               key={category}
               onClick={() => setFilter(category)}
-              className={`px-6 py-3 font-bold text-sm uppercase tracking-wider transition-all transform hover:scale-105 ${
+              className={`px-6 py-3 font-bold text-sm uppercase tracking-wider transition-all ${
                 filter === category
                   ? 'bg-red-500 text-white'
                   : 'bg-zinc-900 text-gray-400 hover:bg-zinc-800 hover:text-white'
@@ -47,13 +80,14 @@ const Portfolio = () => {
           {filteredItems.map((item) => (
             <div
               key={item.id}
-              onClick={() => setSelectedItem(item)}
-              className="group relative overflow-hidden bg-zinc-900 aspect-square cursor-pointer transform hover:scale-[1.02] transition-all"
+              className="group relative overflow-hidden bg-zinc-900 aspect-square cursor-pointer"
+              onClick={() => openModal(item)}
             >
               <img
                 src={item.thumbnail}
                 alt={item.title}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                onError={(e) => { e.target.src = 'https://via.placeholder.com/400?text=Image'; }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -65,7 +99,7 @@ const Portfolio = () => {
                 </div>
                 {item.type === 'video' && (
                   <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <div className="bg-red-500 rounded-full p-4">
+                    <div className="bg-red-500 rounded-full p-4 animate-pulse">
                       <Play className="h-8 w-8 text-white fill-white" />
                     </div>
                   </div>
@@ -74,43 +108,78 @@ const Portfolio = () => {
             </div>
           ))}
         </div>
+
+        {/* Empty State */}
+        {filteredItems.length === 0 && !loading && (
+          <div className="text-center py-16">
+            <p className="text-gray-400 text-xl">No portfolio items found.</p>
+          </div>
+        )}
       </div>
 
-      {/* Modal for viewing work */}
-      <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
-        <DialogContent className="bg-zinc-950 border-zinc-800 max-w-5xl p-0">
-          {selectedItem && (
-            <div className="relative">
-              {selectedItem.type === 'video' ? (
-                <div className="w-full bg-black">
-                  <video
-                    controls
-                    autoPlay
-                    className="w-full max-h-[80vh]"
-                    poster={selectedItem.thumbnail}
-                  >
-                    <source src={selectedItem.videoUrl} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-              ) : (
-                <img
-                  src={selectedItem.thumbnail}
-                  alt={selectedItem.title}
-                  className="w-full"
-                />
-              )}
-              <div className="p-6">
-                <span className="inline-block px-3 py-1 bg-red-500 text-white text-xs font-bold uppercase mb-3">
-                  {selectedItem.category}
-                </span>
-                <h2 className="text-2xl font-bold text-white mb-2">{selectedItem.title}</h2>
-                <p className="text-gray-400">{selectedItem.description}</p>
+      {/* Media Modal */}
+      {selectedItem && (
+        <div 
+          className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4"
+          onClick={closeModal}
+        >
+          <button
+            onClick={closeModal}
+            className="absolute top-4 right-4 text-white hover:text-red-500 z-50"
+          >
+            <X className="h-10 w-10" />
+          </button>
+          <div 
+            className="w-full max-w-6xl max-h-[90vh] overflow-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {selectedItem.type === 'video' && selectedItem.videoUrl ? (
+              <video
+                controls
+                autoPlay
+                className="w-full rounded-lg"
+                poster={selectedItem.thumbnail}
+              >
+                <source src={selectedItem.videoUrl} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <img
+                src={selectedItem.thumbnail}
+                alt={selectedItem.title}
+                className="w-full rounded-lg"
+              />
+            )}
+            
+            {/* Gallery of additional media if available */}
+            {selectedItem.media && selectedItem.media.length > 0 && (
+              <div className="grid grid-cols-4 gap-2 mt-4">
+                {selectedItem.media.map((mediaItem, index) => (
+                  <div key={index} className="aspect-square overflow-hidden rounded">
+                    {mediaItem.type === 'video' ? (
+                      <video src={mediaItem.url} className="w-full h-full object-cover" />
+                    ) : (
+                      <img 
+                        src={mediaItem.url} 
+                        alt={`Gallery ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                ))}
               </div>
+            )}
+            
+            <div className="mt-4 text-center">
+              <span className="inline-block px-3 py-1 bg-red-500 text-white text-xs font-bold uppercase mb-2">
+                {selectedItem.category}
+              </span>
+              <h3 className="text-white text-2xl font-bold">{selectedItem.title}</h3>
+              <p className="text-gray-400 mt-2">{selectedItem.description}</p>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
