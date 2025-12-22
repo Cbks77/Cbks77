@@ -1,29 +1,37 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict
-from datetime import datetime
+from typing import List, Optional, Dict, Any
+from datetime import datetime, timezone
 import uuid
 
-# Product Models
+# Media Item for galleries
+class MediaItem(BaseModel):
+    url: str
+    type: str = "image"  # 'image' or 'video'
+    caption: Optional[str] = None
+
+# Product Models - Updated with gallery support
 class Product(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     price: float
-    image: str
+    image: str  # Primary image (for backwards compatibility)
+    images: List[str] = []  # Gallery images (up to 7)
     description: str
     sizes: List[str]
     inStock: bool = True
-    createdAt: datetime = Field(default_factory=datetime.utcnow)
-    updatedAt: datetime = Field(default_factory=datetime.utcnow)
+    createdAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updatedAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ProductCreate(BaseModel):
     name: str
     price: float
     image: str
+    images: List[str] = []
     description: str
     sizes: List[str]
     inStock: bool = True
 
-# Portfolio Models
+# Portfolio Models - Updated with gallery support
 class PortfolioItem(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     title: str
@@ -31,9 +39,10 @@ class PortfolioItem(BaseModel):
     type: str  # 'video' or 'image'
     thumbnail: str
     videoUrl: Optional[str] = None
+    media: List[MediaItem] = []  # Gallery of images/videos (up to 7)
     category: str
-    createdAt: datetime = Field(default_factory=datetime.utcnow)
-    updatedAt: datetime = Field(default_factory=datetime.utcnow)
+    createdAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updatedAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class PortfolioItemCreate(BaseModel):
     title: str
@@ -41,6 +50,7 @@ class PortfolioItemCreate(BaseModel):
     type: str
     thumbnail: str
     videoUrl: Optional[str] = None
+    media: List[MediaItem] = []
     category: str
 
 # Contact Models
@@ -51,7 +61,7 @@ class ContactSubmission(BaseModel):
     subject: str
     message: str
     status: str = "new"  # new, read, replied
-    createdAt: datetime = Field(default_factory=datetime.utcnow)
+    createdAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ContactSubmissionCreate(BaseModel):
     name: str
@@ -88,8 +98,8 @@ class Order(BaseModel):
     shippingAddress: Optional[ShippingAddress] = None
     paymentStatus: str = "pending"  # pending, completed, failed
     paypalOrderId: Optional[str] = None
-    createdAt: datetime = Field(default_factory=datetime.utcnow)
-    updatedAt: datetime = Field(default_factory=datetime.utcnow)
+    createdAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updatedAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class OrderCreate(BaseModel):
     items: List[OrderItem]
@@ -99,3 +109,45 @@ class OrderCreate(BaseModel):
     customerEmail: str
     customerName: str
     shippingAddress: Optional[ShippingAddress] = None
+
+# Page Builder Models
+class PageBlock(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    type: str  # 'text', 'image', 'video', 'gallery', 'hero', 'grid', 'spacer'
+    content: Dict[str, Any] = {}  # Block-specific content
+    order: int = 0
+    settings: Dict[str, Any] = {}  # Styling settings
+
+class CustomPage(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    slug: str  # URL-friendly name (e.g., 'about-us')
+    blocks: List[PageBlock] = []
+    isPublished: bool = False
+    showInNav: bool = False  # Show in navigation menu
+    createdAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updatedAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class CustomPageCreate(BaseModel):
+    title: str
+    slug: str
+    blocks: List[PageBlock] = []
+    isPublished: bool = False
+    showInNav: bool = False
+
+class CustomPageUpdate(BaseModel):
+    title: Optional[str] = None
+    slug: Optional[str] = None
+    blocks: Optional[List[PageBlock]] = None
+    isPublished: Optional[bool] = None
+    showInNav: Optional[bool] = None
+
+# Site Settings Model
+class SiteSettings(BaseModel):
+    id: str = "site_settings"
+    siteName: str = "CBKS77"
+    tagline: str = "UNBOTHERED. CREATIVE. BOLD."
+    primaryColor: str = "#ef4444"  # red-500
+    socialLinks: Dict[str, str] = {}
+    footerText: str = ""
+    updatedAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
