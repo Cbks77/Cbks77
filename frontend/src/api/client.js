@@ -107,6 +107,98 @@ export const api = {
     }
   },
 
+  // Custom Pages
+  getPages: async () => {
+    try {
+      const response = await axios.get(`${API_URL}/pages`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching pages:', error);
+      throw error;
+    }
+  },
+
+  getPublishedPages: async () => {
+    try {
+      const response = await axios.get(`${API_URL}/pages/published`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching published pages:', error);
+      return [];
+    }
+  },
+
+  getPage: async (id) => {
+    try {
+      const response = await axios.get(`${API_URL}/pages/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching page:', error);
+      throw error;
+    }
+  },
+
+  getPageBySlug: async (slug) => {
+    try {
+      const response = await axios.get(`${API_URL}/pages/slug/${slug}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching page by slug:', error);
+      throw error;
+    }
+  },
+
+  createPage: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/pages`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating page:', error);
+      throw error;
+    }
+  },
+
+  updatePage: async (id, data) => {
+    try {
+      const response = await axios.put(`${API_URL}/pages/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating page:', error);
+      throw error;
+    }
+  },
+
+  deletePage: async (id) => {
+    try {
+      const response = await axios.delete(`${API_URL}/pages/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting page:', error);
+      throw error;
+    }
+  },
+
+  // Site Settings
+  getSettings: async () => {
+    try {
+      const response = await axios.get(`${API_URL}/settings`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+      return null;
+    }
+  },
+
+  updateSettings: async (data) => {
+    try {
+      const response = await axios.put(`${API_URL}/settings`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating settings:', error);
+      throw error;
+    }
+  },
+
   // Contact
   submitContact: async (data) => {
     try {
