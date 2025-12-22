@@ -19,13 +19,10 @@ import { Toaster } from "./components/ui/toaster";
 
 function App() {
   const [cartItemCount, setCartItemCount] = useState(0);
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-
-  // Check admin authentication on mount
-  useEffect(() => {
-    const authStatus = localStorage.getItem('adminAuth') === 'true';
-    setIsAdminAuthenticated(authStatus);
-  }, []);
+  // Initialize auth state directly from localStorage to avoid flash redirect
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
+    return localStorage.getItem('adminAuth') === 'true';
+  });
 
   // Update cart count from localStorage
   const updateCartCount = () => {
