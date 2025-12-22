@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Play, X, Loader2 } from 'lucide-react';
+import { ArrowRight, Play, X } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { api } from '../api/client';
+import { ProductSkeleton, PortfolioSkeleton, LazyImage, LazyVideo } from '../components/LoadingComponents';
 
 const Home = () => {
   const videoRef = useRef(null);
@@ -58,6 +59,7 @@ const Home = () => {
             loop
             muted
             playsInline
+            preload="auto"
             className="w-full h-full object-cover opacity-40"
           >
             <source src="https://customer-assets.emergentagent.com/job_cdks-merch/artifacts/cim12qs3_Grok-Video-95C7645C-6AEC-4C8C-A281-A7B026C59195.mp4" type="video/mp4" />
@@ -134,10 +136,10 @@ const Home = () => {
             </div>
             <div className="relative group">
               <div className="absolute inset-0 bg-red-500 transform rotate-3 group-hover:rotate-6 transition-transform"></div>
-              <img
+              <LazyImage
                 src="https://customer-assets.emergentagent.com/job_cdks-merch/artifacts/qu2u3v2q_IMG_2510.JPG"
                 alt="CBKS77 Character"
-                className="relative z-10 w-full transform -rotate-3 group-hover:rotate-0 transition-transform"
+                className="relative z-10 w-full aspect-square transform -rotate-3 group-hover:rotate-0 transition-transform"
               />
             </div>
           </div>
@@ -165,22 +167,21 @@ const Home = () => {
             </Link>
           </div>
 
-          {loading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="h-12 w-12 text-red-500 animate-spin" />
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {portfolioItems.slice(0, 6).map((item) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {loading ? (
+              // Skeleton loaders
+              [...Array(6)].map((_, i) => <PortfolioSkeleton key={i} />)
+            ) : (
+              portfolioItems.slice(0, 6).map((item) => (
                 <div
                   key={item.id}
                   className="group relative overflow-hidden bg-zinc-900 aspect-square cursor-pointer transform hover:scale-[1.02] transition-all"
                   onClick={() => openVideoModal(item)}
                 >
-                  <img
+                  <LazyImage
                     src={item.thumbnail}
                     alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full"
                     onError={(e) => { e.target.src = 'https://via.placeholder.com/400?text=Image'; }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -200,9 +201,9 @@ const Home = () => {
                     )}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </div>
 
           <div className="mt-8 text-center md:hidden">
             <Link to="/portfolio">
@@ -238,23 +239,21 @@ const Home = () => {
             </Link>
           </div>
 
-          {loading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="h-12 w-12 text-red-500 animate-spin" />
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.slice(0, 3).map((product) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {loading ? (
+              // Skeleton loaders
+              [...Array(3)].map((_, i) => <ProductSkeleton key={i} />)
+            ) : (
+              products.slice(0, 3).map((product) => (
                 <div
                   key={product.id}
                   className="group bg-zinc-950 border border-zinc-800 overflow-hidden hover:border-red-500 transition-all transform hover:scale-[1.02]"
                 >
                   <div className="aspect-square overflow-hidden bg-zinc-900">
-                    <img
+                    <LazyImage
                       src={product.image}
                       alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      onError={(e) => { e.target.src = 'https://via.placeholder.com/400?text=Image'; }}
+                      className="w-full h-full group-hover:scale-110 transition-transform duration-500"
                     />
                   </div>
                   <div className="p-6">
@@ -275,9 +274,9 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </div>
 
           <div className="mt-8 text-center">
             <Link to="/shop">
@@ -313,6 +312,7 @@ const Home = () => {
               autoPlay
               className="w-full rounded-lg"
               poster={selectedVideo.thumbnail}
+              preload="auto"
             >
               <source src={selectedVideo.videoUrl} type="video/mp4" />
               Your browser does not support the video tag.
