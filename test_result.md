@@ -243,12 +243,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Admin Dashboard - View Products and Portfolio"
-    - "Admin Dashboard - Edit Product"
-    - "Admin Dashboard - Delete Product"
-    - "Admin Dashboard - Create Product"
-    - "Admin Dashboard - Portfolio CRUD"
-  stuck_tasks: []
+    - "PayPal Checkout Flow"
+  stuck_tasks:
+    - "PayPal Checkout Flow"
   test_all: false
   test_priority: "high_first"
 
