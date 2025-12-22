@@ -1,17 +1,39 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Play, X } from 'lucide-react';
+import { ArrowRight, Play, X, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { portfolioItems, products, aboutText } from '../mock';
+import { api } from '../api/client';
 
 const Home = () => {
   const videoRef = useRef(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [portfolioItems, setPortfolioItems] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.play().catch(err => console.log('Video autoplay prevented:', err));
     }
+  }, []);
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [portfolioData, productsData] = await Promise.all([
+          api.getPortfolio(),
+          api.getProducts()
+        ]);
+        setPortfolioItems(portfolioData || []);
+        setProducts(productsData || []);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   const openVideoModal = (item) => {
@@ -54,7 +76,7 @@ const Home = () => {
             CBKS<span className="text-red-500">77</span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-4 font-semibold tracking-wide">
-            {aboutText.tagline}
+            UNBOTHERED. CREATIVE. BOLD.
           </p>
           <p className="text-lg text-gray-400 mb-12 max-w-2xl mx-auto">
             Graphic Designer & 3D Animator Creating Bold Visual Stories
@@ -95,10 +117,10 @@ const Home = () => {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-5xl md:text-6xl font-black text-white mb-6 tracking-tight">
-                {aboutText.headline}
+                Creative that tells a story.
               </h2>
               <p className="text-lg text-gray-400 leading-relaxed mb-6">
-                {aboutText.description}
+                CBKS77 is a creative studio specializing in bold animation and graphic design. Every piece we create is designed to make an impact, tell a story, and leave a lasting impression. From character animation to merchandise design, we bring visions to life with an edge.
               </p>
               <Link to="/about">
                 <Button
@@ -143,37 +165,44 @@ const Home = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {portfolioItems.slice(0, 6).map((item) => (
-              <div
-                key={item.id}
-                className="group relative overflow-hidden bg-zinc-900 aspect-square cursor-pointer transform hover:scale-[1.02] transition-all"
-                onClick={() => openVideoModal(item)}
-              >
-                <img
-                  src={item.thumbnail}
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <span className="inline-block px-3 py-1 bg-red-500 text-white text-xs font-bold uppercase mb-2">
-                      {item.category}
-                    </span>
-                    <h3 className="text-white font-bold text-xl mb-2">{item.title}</h3>
-                    <p className="text-gray-300 text-sm">{item.description}</p>
-                  </div>
-                  {item.type === 'video' && (
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                      <div className="bg-red-500 rounded-full p-4 animate-pulse">
-                        <Play className="h-8 w-8 text-white fill-white" />
-                      </div>
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-12 w-12 text-red-500 animate-spin" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {portfolioItems.slice(0, 6).map((item) => (
+                <div
+                  key={item.id}
+                  className="group relative overflow-hidden bg-zinc-900 aspect-square cursor-pointer transform hover:scale-[1.02] transition-all"
+                  onClick={() => openVideoModal(item)}
+                >
+                  <img
+                    src={item.thumbnail}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    onError={(e) => { e.target.src = 'https://via.placeholder.com/400?text=Image'; }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <span className="inline-block px-3 py-1 bg-red-500 text-white text-xs font-bold uppercase mb-2">
+                        {item.category}
+                      </span>
+                      <h3 className="text-white font-bold text-xl mb-2">{item.title}</h3>
+                      <p className="text-gray-300 text-sm">{item.description}</p>
                     </div>
-                  )}
+                    {item.type === 'video' && (
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <div className="bg-red-500 rounded-full p-4 animate-pulse">
+                          <Play className="h-8 w-8 text-white fill-white" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <div className="mt-8 text-center md:hidden">
             <Link to="/portfolio">
@@ -209,37 +238,46 @@ const Home = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.slice(0, 3).map((product) => (
-              <div
-                key={product.id}
-                className="group bg-zinc-950 border border-zinc-800 overflow-hidden hover:border-red-500 transition-all transform hover:scale-[1.02]"
-              >
-                <div className="aspect-square overflow-hidden bg-zinc-900">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-white font-bold text-lg mb-2 group-hover:text-red-500 transition-colors">
-                    {product.name}
-                  </h3>
-                  <p className="text-gray-400 text-sm mb-4 line-clamp-2">{product.description}</p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-white font-black text-2xl">£{product.price.toFixed(2)}</span>
-                    <Button
-                      size="sm"
-                      className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-none"
-                    >
-                      Add to Cart
-                    </Button>
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-12 w-12 text-red-500 animate-spin" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.slice(0, 3).map((product) => (
+                <div
+                  key={product.id}
+                  className="group bg-zinc-950 border border-zinc-800 overflow-hidden hover:border-red-500 transition-all transform hover:scale-[1.02]"
+                >
+                  <div className="aspect-square overflow-hidden bg-zinc-900">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      onError={(e) => { e.target.src = 'https://via.placeholder.com/400?text=Image'; }}
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-white font-bold text-lg mb-2 group-hover:text-red-500 transition-colors">
+                      {product.name}
+                    </h3>
+                    <p className="text-gray-400 text-sm mb-4 line-clamp-2">{product.description}</p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-white font-black text-2xl">£{(product.price || 0).toFixed(2)}</span>
+                      <Link to="/shop">
+                        <Button
+                          size="sm"
+                          className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-none"
+                        >
+                          View
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <div className="mt-8 text-center">
             <Link to="/shop">
@@ -280,8 +318,8 @@ const Home = () => {
               Your browser does not support the video tag.
             </video>
             <div className="mt-4 text-center">
-              <h3 className="text-white text-2xl font-bold mb-2">{selectedVideo.title}</h3>
-              <p className="text-gray-400">{selectedVideo.description}</p>
+              <h3 className="text-white text-2xl font-bold">{selectedVideo.title}</h3>
+              <p className="text-gray-400 mt-2">{selectedVideo.description}</p>
             </div>
           </div>
         </div>
