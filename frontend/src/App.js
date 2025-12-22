@@ -13,6 +13,8 @@ import AdminLogin from "./pages/AdminLogin";
 import SimpleAdminDashboard from "./pages/SimpleAdminDashboard";
 import ProductForm from "./pages/ProductForm";
 import PortfolioForm from "./pages/PortfolioForm";
+import PageBuilder from "./pages/PageBuilder";
+import CustomPageRenderer from "./pages/CustomPageRenderer";
 import { Toaster } from "./components/ui/toaster";
 
 function App() {
@@ -104,6 +106,15 @@ function App() {
             </>
           } />
 
+          {/* Custom Pages Route */}
+          <Route path="/page/:slug" element={
+            <>
+              <Header cartItemCount={cartItemCount} />
+              <CustomPageRenderer />
+              <Footer />
+            </>
+          } />
+
           {/* Admin routes without Header/Footer */}
           <Route path="/admin" element={<AdminLogin onLogin={setIsAdminAuthenticated} />} />
           <Route path="/admin/dashboard" element={
@@ -129,6 +140,16 @@ function App() {
           <Route path="/admin/portfolio/edit/:id" element={
             <ProtectedRoute>
               <PortfolioForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/pages/new" element={
+            <ProtectedRoute>
+              <PageBuilder />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/pages/edit/:id" element={
+            <ProtectedRoute>
+              <PageBuilder />
             </ProtectedRoute>
           } />
         </Routes>
