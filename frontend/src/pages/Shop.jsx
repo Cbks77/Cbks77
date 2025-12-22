@@ -3,6 +3,7 @@ import { ShoppingCart, Loader2 } from 'lucide-react';
 import { api } from '../api/client';
 import { Button } from '../components/ui/button';
 import { useToast } from '../hooks/use-toast';
+import MediaGallery from '../components/MediaGallery';
 import {
   Select,
   SelectContent,
@@ -105,27 +106,19 @@ const Shop = ({ onAddToCart }) => {
             const sizes = product.sizes || ['One Size'];
             const currentSize = selectedSizes[product.id] || sizes[0];
             
+            // Prepare gallery items from product.images
+            const galleryItems = (product.images || []).map(url => ({ url, type: 'image' }));
+            
             return (
               <div
                 key={product.id}
                 className="group bg-zinc-950 border border-zinc-800 overflow-hidden hover:border-red-500 transition-all"
               >
-                {/* Product Image */}
-                <div className="aspect-square overflow-hidden bg-zinc-900 relative">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/400?text=No+Image';
-                    }}
-                  />
-                  {product.inStock === false && (
-                    <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                      <span className="text-white font-bold text-xl">OUT OF STOCK</span>
-                    </div>
-                  )}
-                </div>
+                {/* Product Image Gallery */}
+                <MediaGallery 
+                  items={galleryItems}
+                  primaryImage={product.image}
+                />
 
                 {/* Product Info */}
                 <div className="p-6 space-y-4">
