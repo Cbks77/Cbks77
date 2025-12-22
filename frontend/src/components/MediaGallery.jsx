@@ -5,6 +5,7 @@ const MediaGallery = ({ items = [], primaryImage = null }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [modalItem, setModalItem] = useState(null);
+  const [imageLoaded, setImageLoaded] = useState({});
 
   // Combine primary image with gallery items
   const allItems = primaryImage 
@@ -34,11 +35,22 @@ const MediaGallery = ({ items = [], primaryImage = null }) => {
     setShowModal(true);
   };
 
+  const handleImageLoad = (index) => {
+    setImageLoaded(prev => ({ ...prev, [index]: true }));
+  };
+
   const currentItem = allItems[currentIndex];
 
   return (
     <>
       <div className="relative aspect-square overflow-hidden bg-zinc-900 group">
+        {/* Loading placeholder */}
+        {!imageLoaded[currentIndex] && currentItem.type !== 'video' && (
+          <div className="absolute inset-0 bg-zinc-800 animate-pulse">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent skeleton-shimmer"></div>
+          </div>
+        )}
+
         {/* Main Display */}
         {currentItem.type === 'video' ? (
           <div 
@@ -50,6 +62,7 @@ const MediaGallery = ({ items = [], primaryImage = null }) => {
               className="w-full h-full object-cover"
               muted
               playsInline
+              preload="metadata"
             />
             <div className="absolute inset-0 flex items-center justify-center bg-black/30">
               <Play className="w-16 h-16 text-white" fill="white" />
@@ -59,10 +72,16 @@ const MediaGallery = ({ items = [], primaryImage = null }) => {
           <img
             src={currentItem.url}
             alt={`Gallery item ${currentIndex + 1}`}
-            className="w-full h-full object-cover cursor-pointer"
+            loading="lazy"
+            decoding="async"
+            onLoad={() => handleImageLoad(currentIndex)}
             onClick={() => openModal(currentItem)}
+            className={`w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${
+              imageLoaded[currentIndex] ? 'opacity-100' : 'opacity-0'
+            }`}
             onError={(e) => {
               e.target.src = 'https://via.placeholder.com/400?text=Image+Not+Found';
+              handleImageLoad(currentIndex);
             }}
           />
         )}
@@ -133,12 +152,14 @@ const MediaGallery = ({ items = [], primaryImage = null }) => {
                 controls
                 autoPlay
                 className="w-full h-full max-h-[90vh] object-contain"
+                preload="auto"
               />
             ) : (
               <img
                 src={modalItem.url}
                 alt="Full size"
                 className="w-full h-full max-h-[90vh] object-contain"
+                loading="eager"
               />
             )}
           </div>
