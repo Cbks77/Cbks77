@@ -17,6 +17,12 @@ from models import (
 )
 from paypal_service import paypal_service
 
+# Configure logging first
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -183,153 +189,6 @@ async def delete_portfolio_item(item_id: str):
         raise HTTPException(status_code=500, detail="Failed to delete portfolio item")
 
 
-# Contact Endpoints
-@api_router.post("/contact", response_model=ContactSubmission)
-async def submit_contact_form(submission: ContactSubmissionCreate):
-    """Submit a contact form"""
-    try:
-        new_submission = ContactSubmission(**submission.model_dump())
-        await db.contact_submissions.insert_one(new_submission.model_dump())
-        logger.info(f"Contact form submitted by {submission.email}")
-        return new_submission
-    except Exception as e:
-        logger.error(f"Error submitting contact form: {e}")
-        raise HTTPException(status_code=500, detail="Failed to submit contact form")
-
-
-@api_router.get("/contact", response_model=List[ContactSubmission])
-async def get_contact_submissions():
-    """Get all contact submissions (admin only in future)"""
-    try:
-        submissions = await db.contact_submissions.find().sort("createdAt", -1).to_list(1000)
-        return [ContactSubmission(**sub) for sub in submissions]
-    except Exception as e:
-        logger.error(f"Error fetching contact submissions: {e}")
-        raise HTTPException(status_code=500, detail="Failed to fetch contact submissions")
-
-
-# Order Endpoints
-@api_router.post("/orders", response_model=Order)
-async def create_order(order: OrderCreate):
-    """Create a new order"""
-    try:
-        new_order = Order(**order.model_dump())
-        await db.orders.insert_one(new_order.model_dump())
-        logger.info(f"Order created: {new_order.orderNumber}")
-        return new_order
-    except Exception as e:
-        logger.error(f"Error creating order: {e}")
-        raise HTTPException(status_code=500, detail="Failed to create order")
-
-
-@api_router.get("/orders/{order_id}", response_model=Order)
-async def get_order(order_id: str):
-    """Get order details"""
-    try:
-        order = await db.orders.find_one({"id": order_id})
-        if not order:
-            raise HTTPException(status_code=404, detail="Order not found")
-        return Order(**order)
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error fetching order: {e}")
-        raise HTTPException(status_code=500, detail="Failed to fetch order")
-
-
-# PayPal Payment Endpoints
-class PayPalCaptureRequest(BaseModel):
-    paypalOrderId: str
-
-
-@api_router.post("/orders/{order_id}/create-payment")
-async def create_paypal_payment(order_id: str):
-    """Create PayPal order for payment"""
-    try:
-        # Get order from database
-        order = await db.orders.find_one({"id": order_id})
-        if not order:
-            raise HTTPException(status_code=404, detail="Order not found")
-        
-        # Prepare items for PayPal
-        items = []
-        for item in order['items']:
-            items.append({
-                "name": item['productName'],
-                "price": item['price'],
-                "quantity": item['quantity']
-            })
-        
-        # Create PayPal order
-        payment_data = {
-            "items": items,
-            "total": order['total'],
-            "orderNumber": order['orderNumber']
-        }
-        
-        result = paypal_service.create_order(payment_data)
-        
-        if result['success']:
-            # Update order with PayPal order ID
-            await db.orders.update_one(
-                {"id": order_id},
-                {"$set": {"paypalOrderId": result['order_id']}}
-            )
-            return {
-                "success": True,
-                "payment_id": result['order_id']  # Return as payment_id for frontend compatibility
-            }
-        else:
-            raise HTTPException(status_code=400, detail=result.get('error', 'Payment creation failed'))
-            
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error creating PayPal order: {e}")
-        raise HTTPException(status_code=500, detail="Failed to create payment")
-
-
-@api_router.post("/orders/{order_id}/capture")
-async def capture_paypal_payment(order_id: str, capture_req: PayPalCaptureRequest):
-    """Capture/execute PayPal order"""
-    try:
-        # Get order from database
-        order = await db.orders.find_one({"id": order_id})
-        if not order:
-            raise HTTPException(status_code=404, detail="Order not found")
-        
-        # Capture the PayPal order
-        result = paypal_service.capture_order(capture_req.paypalOrderId)
-        
-        if result['success']:
-            # Update order status
-            await db.orders.update_one(
-                {"id": order_id},
-                {"$set": {
-                    "paymentStatus": "completed",
-                    "paypalOrderId": capture_req.paypalOrderId
-                }}
-            )
-            logger.info(f"Payment captured for order {order_id}")
-            return {"success": True, "message": "Payment captured successfully"}
-        else:
-            await db.orders.update_one(
-                {"id": order_id},
-                {"$set": {"paymentStatus": "failed"}}
-            )
-            raise HTTPException(status_code=400, detail=result.get('error', 'Payment capture failed'))
-            
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error capturing payment: {e}")
-        raise HTTPException(status_code=500, detail="Failed to capture payment")
-
-
-# Include the router in the main app
-app.include_router(api_router)
-
-
 # Custom Pages Endpoints
 @api_router.get("/pages", response_model=List[CustomPage])
 async def get_pages():
@@ -387,7 +246,6 @@ async def get_page(page_id: str):
 async def create_page(page: CustomPageCreate):
     """Create a new custom page"""
     try:
-        # Check if slug already exists
         existing = await db.pages.find_one({"slug": page.slug})
         if existing:
             raise HTTPException(status_code=400, detail="A page with this slug already exists")
@@ -411,19 +269,14 @@ async def update_page(page_id: str, page_update: CustomPageUpdate):
         if not existing:
             raise HTTPException(status_code=404, detail="Page not found")
         
-        # Build update dict with only provided fields
         update_data = {k: v for k, v in page_update.model_dump().items() if v is not None}
         
         if "slug" in update_data:
-            # Check if new slug already exists (excluding current page)
             slug_exists = await db.pages.find_one({"slug": update_data["slug"], "id": {"$ne": page_id}})
             if slug_exists:
                 raise HTTPException(status_code=400, detail="A page with this slug already exists")
         
-        # Update the page
         await db.pages.update_one({"id": page_id}, {"$set": update_data})
-        
-        # Fetch and return updated page
         updated = await db.pages.find_one({"id": page_id})
         return CustomPage(**updated)
     except HTTPException:
@@ -455,7 +308,6 @@ async def get_site_settings():
     try:
         settings = await db.settings.find_one({"id": "site_settings"})
         if not settings:
-            # Return defaults if not set
             return SiteSettings()
         return SiteSettings(**settings)
     except Exception as e:
@@ -479,6 +331,147 @@ async def update_site_settings(settings: SiteSettings):
         logger.error(f"Error updating settings: {e}")
         raise HTTPException(status_code=500, detail="Failed to update settings")
 
+
+# Contact Endpoints
+@api_router.post("/contact", response_model=ContactSubmission)
+async def submit_contact_form(submission: ContactSubmissionCreate):
+    """Submit a contact form"""
+    try:
+        new_submission = ContactSubmission(**submission.model_dump())
+        await db.contact_submissions.insert_one(new_submission.model_dump())
+        logger.info(f"Contact form submitted by {submission.email}")
+        return new_submission
+    except Exception as e:
+        logger.error(f"Error submitting contact form: {e}")
+        raise HTTPException(status_code=500, detail="Failed to submit contact form")
+
+
+@api_router.get("/contact", response_model=List[ContactSubmission])
+async def get_contact_submissions():
+    """Get all contact submissions"""
+    try:
+        submissions = await db.contact_submissions.find().sort("createdAt", -1).to_list(1000)
+        return [ContactSubmission(**sub) for sub in submissions]
+    except Exception as e:
+        logger.error(f"Error fetching contact submissions: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch contact submissions")
+
+
+# Order Endpoints
+@api_router.post("/orders", response_model=Order)
+async def create_order(order: OrderCreate):
+    """Create a new order"""
+    try:
+        new_order = Order(**order.model_dump())
+        await db.orders.insert_one(new_order.model_dump())
+        logger.info(f"Order created: {new_order.orderNumber}")
+        return new_order
+    except Exception as e:
+        logger.error(f"Error creating order: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create order")
+
+
+@api_router.get("/orders/{order_id}", response_model=Order)
+async def get_order(order_id: str):
+    """Get order details"""
+    try:
+        order = await db.orders.find_one({"id": order_id})
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        return Order(**order)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching order: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch order")
+
+
+# PayPal Payment Endpoints
+class PayPalCaptureRequest(BaseModel):
+    paypalOrderId: str
+
+
+@api_router.post("/orders/{order_id}/create-payment")
+async def create_paypal_payment(order_id: str):
+    """Create PayPal order for payment"""
+    try:
+        order = await db.orders.find_one({"id": order_id})
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        
+        items = []
+        for item in order['items']:
+            items.append({
+                "name": item['productName'],
+                "price": item['price'],
+                "quantity": item['quantity']
+            })
+        
+        payment_data = {
+            "items": items,
+            "total": order['total'],
+            "orderNumber": order['orderNumber']
+        }
+        
+        result = paypal_service.create_order(payment_data)
+        
+        if result['success']:
+            await db.orders.update_one(
+                {"id": order_id},
+                {"$set": {"paypalOrderId": result['order_id']}}
+            )
+            return {
+                "success": True,
+                "payment_id": result['order_id']
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result.get('error', 'Payment creation failed'))
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating PayPal order: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create payment")
+
+
+@api_router.post("/orders/{order_id}/capture")
+async def capture_paypal_payment(order_id: str, capture_req: PayPalCaptureRequest):
+    """Capture/execute PayPal order"""
+    try:
+        order = await db.orders.find_one({"id": order_id})
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        
+        result = paypal_service.capture_order(capture_req.paypalOrderId)
+        
+        if result['success']:
+            await db.orders.update_one(
+                {"id": order_id},
+                {"$set": {
+                    "paymentStatus": "completed",
+                    "paypalOrderId": capture_req.paypalOrderId
+                }}
+            )
+            logger.info(f"Payment captured for order {order_id}")
+            return {"success": True, "message": "Payment captured successfully"}
+        else:
+            await db.orders.update_one(
+                {"id": order_id},
+                {"$set": {"paymentStatus": "failed"}}
+            )
+            raise HTTPException(status_code=400, detail=result.get('error', 'Payment capture failed'))
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error capturing payment: {e}")
+        raise HTTPException(status_code=500, detail="Failed to capture payment")
+
+
+# Include the router in the main app - AFTER all routes are defined
+app.include_router(api_router)
+
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -486,13 +479,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
