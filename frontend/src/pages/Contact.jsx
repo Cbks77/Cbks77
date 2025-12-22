@@ -6,8 +6,6 @@ import { Textarea } from '../components/ui/textarea';
 import { useToast } from '../hooks/use-toast';
 import { api } from '../api/client';
 
- 
-
 // Social media links
 const socialLinks = [
   { name: 'Instagram', icon: Instagram, url: 'https://instagram.com/cbks77.nft', handle: '@cbks77.nft' },
