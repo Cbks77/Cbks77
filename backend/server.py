@@ -329,6 +329,156 @@ async def capture_paypal_payment(order_id: str, capture_req: PayPalCaptureReques
 # Include the router in the main app
 app.include_router(api_router)
 
+
+# Custom Pages Endpoints
+@api_router.get("/pages", response_model=List[CustomPage])
+async def get_pages():
+    """Get all custom pages"""
+    try:
+        pages = await db.pages.find().to_list(1000)
+        return [CustomPage(**page) for page in pages]
+    except Exception as e:
+        logger.error(f"Error fetching pages: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch pages")
+
+
+@api_router.get("/pages/published")
+async def get_published_pages():
+    """Get all published pages for navigation"""
+    try:
+        pages = await db.pages.find({"isPublished": True}).to_list(1000)
+        return [{"id": p["id"], "title": p["title"], "slug": p["slug"], "showInNav": p.get("showInNav", False)} for p in pages]
+    except Exception as e:
+        logger.error(f"Error fetching published pages: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch pages")
+
+
+@api_router.get("/pages/slug/{slug}", response_model=CustomPage)
+async def get_page_by_slug(slug: str):
+    """Get a page by its slug"""
+    try:
+        page = await db.pages.find_one({"slug": slug})
+        if not page:
+            raise HTTPException(status_code=404, detail="Page not found")
+        return CustomPage(**page)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching page: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch page")
+
+
+@api_router.get("/pages/{page_id}", response_model=CustomPage)
+async def get_page(page_id: str):
+    """Get a single page by ID"""
+    try:
+        page = await db.pages.find_one({"id": page_id})
+        if not page:
+            raise HTTPException(status_code=404, detail="Page not found")
+        return CustomPage(**page)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching page: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch page")
+
+
+@api_router.post("/pages", response_model=CustomPage)
+async def create_page(page: CustomPageCreate):
+    """Create a new custom page"""
+    try:
+        # Check if slug already exists
+        existing = await db.pages.find_one({"slug": page.slug})
+        if existing:
+            raise HTTPException(status_code=400, detail="A page with this slug already exists")
+        
+        new_page = CustomPage(**page.model_dump())
+        await db.pages.insert_one(new_page.model_dump())
+        logger.info(f"Custom page created: {new_page.title}")
+        return new_page
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating page: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create page")
+
+
+@api_router.put("/pages/{page_id}", response_model=CustomPage)
+async def update_page(page_id: str, page_update: CustomPageUpdate):
+    """Update a custom page"""
+    try:
+        existing = await db.pages.find_one({"id": page_id})
+        if not existing:
+            raise HTTPException(status_code=404, detail="Page not found")
+        
+        # Build update dict with only provided fields
+        update_data = {k: v for k, v in page_update.model_dump().items() if v is not None}
+        
+        if "slug" in update_data:
+            # Check if new slug already exists (excluding current page)
+            slug_exists = await db.pages.find_one({"slug": update_data["slug"], "id": {"$ne": page_id}})
+            if slug_exists:
+                raise HTTPException(status_code=400, detail="A page with this slug already exists")
+        
+        # Update the page
+        await db.pages.update_one({"id": page_id}, {"$set": update_data})
+        
+        # Fetch and return updated page
+        updated = await db.pages.find_one({"id": page_id})
+        return CustomPage(**updated)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating page: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update page")
+
+
+@api_router.delete("/pages/{page_id}")
+async def delete_page(page_id: str):
+    """Delete a custom page"""
+    try:
+        result = await db.pages.delete_one({"id": page_id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Page not found")
+        return {"message": "Page deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting page: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete page")
+
+
+# Site Settings Endpoints
+@api_router.get("/settings", response_model=SiteSettings)
+async def get_site_settings():
+    """Get site settings"""
+    try:
+        settings = await db.settings.find_one({"id": "site_settings"})
+        if not settings:
+            # Return defaults if not set
+            return SiteSettings()
+        return SiteSettings(**settings)
+    except Exception as e:
+        logger.error(f"Error fetching settings: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch settings")
+
+
+@api_router.put("/settings", response_model=SiteSettings)
+async def update_site_settings(settings: SiteSettings):
+    """Update site settings"""
+    try:
+        settings_dict = settings.model_dump()
+        settings_dict["id"] = "site_settings"
+        await db.settings.replace_one(
+            {"id": "site_settings"},
+            settings_dict,
+            upsert=True
+        )
+        return settings
+    except Exception as e:
+        logger.error(f"Error updating settings: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update settings")
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
