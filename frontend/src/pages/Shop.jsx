@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Loader2 } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { api } from '../api/client';
 import { Button } from '../components/ui/button';
 import { useToast } from '../hooks/use-toast';
+import { ProductSkeleton, LazyImage } from '../components/LoadingComponents';
 import MediaGallery from '../components/MediaGallery';
 import {
   Select,
@@ -79,14 +80,6 @@ const Shop = ({ onAddToCart }) => {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="bg-black min-h-screen pt-32 pb-24 flex items-center justify-center">
-        <Loader2 className="h-12 w-12 text-red-500 animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <div className="bg-black min-h-screen pt-32 pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -102,83 +95,88 @@ const Shop = ({ onAddToCart }) => {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map((product) => {
-            const sizes = product.sizes || ['One Size'];
-            const currentSize = selectedSizes[product.id] || sizes[0];
-            
-            // Prepare gallery items from product.images
-            const galleryItems = (product.images || []).map(url => ({ url, type: 'image' }));
-            
-            return (
-              <div
-                key={product.id}
-                className="group bg-zinc-950 border border-zinc-800 overflow-hidden hover:border-red-500 transition-all"
-              >
-                {/* Product Image Gallery */}
-                <MediaGallery 
-                  items={galleryItems}
-                  primaryImage={product.image}
-                />
+          {loading ? (
+            // Skeleton loaders
+            [...Array(6)].map((_, i) => <ProductSkeleton key={i} />)
+          ) : (
+            products.map((product) => {
+              const sizes = product.sizes || ['One Size'];
+              const currentSize = selectedSizes[product.id] || sizes[0];
+              
+              // Prepare gallery items from product.images
+              const galleryItems = (product.images || []).map(url => ({ url, type: 'image' }));
+              
+              return (
+                <div
+                  key={product.id}
+                  className="group bg-zinc-950 border border-zinc-800 overflow-hidden hover:border-red-500 transition-all"
+                >
+                  {/* Product Image Gallery */}
+                  <MediaGallery 
+                    items={galleryItems}
+                    primaryImage={product.image}
+                  />
 
-                {/* Product Info */}
-                <div className="p-6 space-y-4">
-                  <div>
-                    <h3 className="text-white font-bold text-xl mb-2 group-hover:text-red-500 transition-colors">
-                      {product.name}
-                    </h3>
-                    <p className="text-gray-400 text-sm leading-relaxed">
-                      {product.description}
-                    </p>
-                  </div>
+                  {/* Product Info */}
+                  <div className="p-6 space-y-4">
+                    <div>
+                      <h3 className="text-white font-bold text-xl mb-2 group-hover:text-red-500 transition-colors">
+                        {product.name}
+                      </h3>
+                      <p className="text-gray-400 text-sm leading-relaxed">
+                        {product.description}
+                      </p>
+                    </div>
 
-                  {/* Size Selector */}
-                  <div className="space-y-2">
-                    <label className="text-gray-400 text-sm font-semibold uppercase tracking-wider">
-                      Size
-                    </label>
-                    <Select
-                      value={currentSize}
-                      onValueChange={(value) => handleSizeChange(product.id, value)}
-                    >
-                      <SelectTrigger className="bg-zinc-900 border-zinc-700 text-white">
-                        <SelectValue placeholder="Select size" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-zinc-900 border-zinc-700">
-                        {sizes.map((size) => (
-                          <SelectItem
-                            key={size}
-                            value={size}
-                            className="text-white hover:bg-zinc-800 focus:bg-zinc-800"
-                          >
-                            {size}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                    {/* Size Selector */}
+                    <div className="space-y-2">
+                      <label className="text-gray-400 text-sm font-semibold uppercase tracking-wider">
+                        Size
+                      </label>
+                      <Select
+                        value={currentSize}
+                        onValueChange={(value) => handleSizeChange(product.id, value)}
+                      >
+                        <SelectTrigger className="bg-zinc-900 border-zinc-700 text-white">
+                          <SelectValue placeholder="Select size" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-zinc-900 border-zinc-700">
+                          {sizes.map((size) => (
+                            <SelectItem
+                              key={size}
+                              value={size}
+                              className="text-white hover:bg-zinc-800 focus:bg-zinc-800"
+                            >
+                              {size}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Price and Add to Cart */}
-                  <div className="flex justify-between items-center pt-4 border-t border-zinc-800">
-                    <span className="text-white font-black text-2xl">
-                      £{(product.price || 0).toFixed(2)}
-                    </span>
-                    <Button
-                      onClick={() => handleAddToCart(product)}
-                      disabled={product.inStock === false}
-                      className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-none disabled:bg-zinc-700 disabled:cursor-not-allowed"
-                    >
-                      <ShoppingCart className="mr-2 h-4 w-4" />
-                      Add to Cart
-                    </Button>
+                    {/* Price and Add to Cart */}
+                    <div className="flex justify-between items-center pt-4 border-t border-zinc-800">
+                      <span className="text-white font-black text-2xl">
+                        £{(product.price || 0).toFixed(2)}
+                      </span>
+                      <Button
+                        onClick={() => handleAddToCart(product)}
+                        disabled={product.inStock === false}
+                        className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-none disabled:bg-zinc-700 disabled:cursor-not-allowed"
+                      >
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        Add to Cart
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
 
         {/* Empty State */}
-        {products.length === 0 && !loading && (
+        {!loading && products.length === 0 && (
           <div className="text-center py-16">
             <p className="text-gray-400 text-xl">No products available yet.</p>
           </div>
