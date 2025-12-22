@@ -71,36 +71,24 @@ const webpackConfig = {
       return webpackConfig;
     },
   },
-};
-
-// Only add babel plugin if visual editing is enabled
-if (config.enableVisualEdits) {
-  webpackConfig.babel = {
-    plugins: [babelMetadataPlugin],
-  };
-}
-
-// Setup dev server configuration
-webpackConfig.devServer = (devServerConfig) => {
-  // Suppress ResizeObserver loop error in error overlay
-  devServerConfig.client = {
-    ...devServerConfig.client,
-    overlay: {
-      errors: true,
-      warnings: false,
-      runtimeErrors: (error) => {
-        // Suppress ResizeObserver loop errors
-        if (error.message && error.message.includes('ResizeObserver loop')) {
-          return false;
-        }
-        return true;
+  // Configure dev server to suppress ResizeObserver errors
+  devServer: (devServerConfig) => {
+    // Suppress ResizeObserver loop error in error overlay
+    devServerConfig.client = {
+      ...devServerConfig.client,
+      overlay: {
+        errors: true,
+        warnings: false,
+        runtimeErrors: (error) => {
+          // Suppress ResizeObserver loop errors - these are harmless browser warnings
+          if (error && error.message && error.message.includes('ResizeObserver loop')) {
+            return false;
+          }
+          return true;
+        },
       },
-    },
-  };
+    };
 
-// Setup dev server with visual edits and/or health check
-if (config.enableVisualEdits || config.enableHealthCheck) {
-  const innerDevServerConfig = (innerConfig) => {
     // Apply visual edits dev server setup if enabled
     if (config.enableVisualEdits && setupDevServer) {
       devServerConfig = setupDevServer(devServerConfig);
@@ -124,6 +112,13 @@ if (config.enableVisualEdits || config.enableHealthCheck) {
     }
 
     return devServerConfig;
+  },
+};
+
+// Only add babel plugin if visual editing is enabled
+if (config.enableVisualEdits) {
+  webpackConfig.babel = {
+    plugins: [babelMetadataPlugin],
   };
 }
 
