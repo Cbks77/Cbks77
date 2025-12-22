@@ -12,9 +12,8 @@ const DiscordIcon = ({ className }) => (
 // Social media links
 const socialLinks = [
   { name: 'Instagram', icon: Instagram, url: 'https://instagram.com/cbks77.nft' },
-  { name: 'Facebook', icon: Facebook, url: 'https://facebook.com/cbks-world' },
+  { name: 'Facebook', icon: Facebook, url: 'https://www.facebook.com/profile.php?id=61577859518540' },
   { name: 'LinkedIn', icon: Linkedin, url: 'https://linkedin.com/in/cbks77' },
-  { name: 'Discord', icon: DiscordIcon, url: 'https://discord.gg/cbks77' },
   { name: 'YouTube', icon: Youtube, url: 'https://youtube.com/@cbks77' },
 ];
 
