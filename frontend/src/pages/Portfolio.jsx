@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Play, X, Loader2 } from 'lucide-react';
+import { Play, X } from 'lucide-react';
 import { api } from '../api/client';
-import MediaGallery from '../components/MediaGallery';
+import { PortfolioSkeleton, LazyImage } from '../components/LoadingComponents';
 
 const Portfolio = () => {
   const [portfolioItems, setPortfolioItems] = useState([]);
@@ -37,14 +37,6 @@ const Portfolio = () => {
     setSelectedItem(null);
   };
 
-  if (loading) {
-    return (
-      <div className="bg-black min-h-screen pt-32 flex items-center justify-center">
-        <Loader2 className="h-12 w-12 text-red-500 animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <div className="bg-black min-h-screen pt-32 pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -59,58 +51,64 @@ const Portfolio = () => {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex flex-wrap gap-4 mb-12">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setFilter(category)}
-              className={`px-6 py-3 font-bold text-sm uppercase tracking-wider transition-all ${
-                filter === category
-                  ? 'bg-red-500 text-white'
-                  : 'bg-zinc-900 text-gray-400 hover:bg-zinc-800 hover:text-white'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
+        {!loading && (
+          <div className="flex flex-wrap gap-4 mb-12">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setFilter(category)}
+                className={`px-6 py-3 font-bold text-sm uppercase tracking-wider transition-all ${
+                  filter === category
+                    ? 'bg-red-500 text-white'
+                    : 'bg-zinc-900 text-gray-400 hover:bg-zinc-800 hover:text-white'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Portfolio Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              className="group relative overflow-hidden bg-zinc-900 aspect-square cursor-pointer"
-              onClick={() => openModal(item)}
-            >
-              <img
-                src={item.thumbnail}
-                alt={item.title}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                onError={(e) => { e.target.src = 'https://via.placeholder.com/400?text=Image'; }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <span className="inline-block px-3 py-1 bg-red-500 text-white text-xs font-bold uppercase mb-2">
-                    {item.category}
-                  </span>
-                  <h3 className="text-white font-bold text-xl mb-2">{item.title}</h3>
-                  <p className="text-gray-300 text-sm">{item.description}</p>
-                </div>
-                {item.type === 'video' && (
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <div className="bg-red-500 rounded-full p-4 animate-pulse">
-                      <Play className="h-8 w-8 text-white fill-white" />
-                    </div>
+          {loading ? (
+            // Skeleton loaders
+            [...Array(6)].map((_, i) => <PortfolioSkeleton key={i} />)
+          ) : (
+            filteredItems.map((item) => (
+              <div
+                key={item.id}
+                className="group relative overflow-hidden bg-zinc-900 aspect-square cursor-pointer"
+                onClick={() => openModal(item)}
+              >
+                <LazyImage
+                  src={item.thumbnail}
+                  alt={item.title}
+                  className="w-full h-full group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <span className="inline-block px-3 py-1 bg-red-500 text-white text-xs font-bold uppercase mb-2">
+                      {item.category}
+                    </span>
+                    <h3 className="text-white font-bold text-xl mb-2">{item.title}</h3>
+                    <p className="text-gray-300 text-sm">{item.description}</p>
                   </div>
-                )}
+                  {item.type === 'video' && (
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      <div className="bg-red-500 rounded-full p-4 animate-pulse">
+                        <Play className="h-8 w-8 text-white fill-white" />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         {/* Empty State */}
-        {filteredItems.length === 0 && !loading && (
+        {!loading && filteredItems.length === 0 && (
           <div className="text-center py-16">
             <p className="text-gray-400 text-xl">No portfolio items found.</p>
           </div>
@@ -139,6 +137,7 @@ const Portfolio = () => {
                 autoPlay
                 className="w-full rounded-lg"
                 poster={selectedItem.thumbnail}
+                preload="auto"
               >
                 <source src={selectedItem.videoUrl} type="video/mp4" />
                 Your browser does not support the video tag.
@@ -148,6 +147,7 @@ const Portfolio = () => {
                 src={selectedItem.thumbnail}
                 alt={selectedItem.title}
                 className="w-full rounded-lg"
+                loading="eager"
               />
             )}
             
@@ -157,12 +157,13 @@ const Portfolio = () => {
                 {selectedItem.media.map((mediaItem, index) => (
                   <div key={index} className="aspect-square overflow-hidden rounded">
                     {mediaItem.type === 'video' ? (
-                      <video src={mediaItem.url} className="w-full h-full object-cover" />
+                      <video src={mediaItem.url} className="w-full h-full object-cover" preload="metadata" />
                     ) : (
                       <img 
                         src={mediaItem.url} 
                         alt={`Gallery ${index + 1}`}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                       />
                     )}
                   </div>
