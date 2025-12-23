@@ -2,8 +2,8 @@
 User-agent: *
 Allow: /
 
-# Sitemap location (dynamically generated from database)
-Sitemap: https://cbks77.com/api/sitemap.xml
+# Sitemap location
+Sitemap: https://cbks77.com/sitemap.xml
 
 # Disallow admin pages from indexing
 Disallow: /admin
