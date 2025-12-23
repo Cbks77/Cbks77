@@ -243,9 +243,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "PayPal Checkout Flow"
-  stuck_tasks:
-    - "PayPal Checkout Flow"
+    - "Dynamic Sitemap"
+    - "Drag-and-Drop Page Builder"
+    - "PayPal Live Checkout"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
@@ -256,3 +257,5 @@ agent_communication:
     message: "COMPREHENSIVE ADMIN PANEL TESTING COMPLETED. CRITICAL FINDING: Admin panel is NOT blank anymore - the main agent's fix worked! Dashboard loads successfully with proper data. ✅ WORKING: Login flow, dashboard display (shows 6 products, 6 portfolio items, ACTIVE status), Add Product functionality, Edit Product functionality, Portfolio Edit functionality, Logout flow. ✅ MAJOR SUCCESS: User's repeated complaint about blank admin panel is RESOLVED. The dashboard now properly fetches and displays real data from API instead of mock data. All core admin functionality is operational."
   - agent: "testing"
     message: "PAYPAL CHECKOUT FLOW TESTING COMPLETED. ✅ WORKING: Shop page loads with products, Add to Cart functionality works, Cart displays items with correct GBP (£) pricing, PayPal integration is properly configured with @paypal/react-paypal-js library and sandbox credentials. ❌ CRITICAL ISSUE FOUND: PayPal button requests are failing with net::ERR_ABORTED errors. The PayPal SDK cannot load resources from sandbox.paypal.com and paypalobjects.com. This prevents the PayPal checkout button from appearing and functioning. Backend PayPal service is properly implemented with correct API endpoints. Issue appears to be network/CORS related blocking PayPal external resources."
+  - agent: "main"
+    message: "COMPLETED 3 NEW FEATURES: 1) Dynamic Sitemap at /api/sitemap.xml - auto-generates from products, portfolio items, and custom pages in DB. 2) Drag-and-Drop Page Builder using @dnd-kit - users can now drag blocks to reorder them. 3) PayPal Live Integration - confirmed PayPal buttons (yellow PayPal + Debit/Credit Card) now rendering correctly with LIVE credentials in cart page. Please verify all three features."
