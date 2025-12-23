@@ -2,8 +2,8 @@
 User-agent: *
 Allow: /
 
-# Sitemap location (served dynamically from backend)
-Sitemap: https://cbks77.com/api/sitemap.xml
+# Sitemap location
+Sitemap: https://cbks77.com/sitemap.xml
 
 # Disallow admin pages from indexing
 Disallow: /admin
