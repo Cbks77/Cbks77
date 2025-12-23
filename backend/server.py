@@ -500,8 +500,8 @@ async def shutdown_db_client():
     client.close()
 
 
-# Dynamic Sitemap Generation
-@app.get("/sitemap.xml", response_class=Response)
+# Dynamic Sitemap Generation - under /api for proper routing
+@api_router.get("/sitemap.xml", response_class=Response)
 async def generate_sitemap():
     """Generate dynamic sitemap.xml from database content"""
     try:
