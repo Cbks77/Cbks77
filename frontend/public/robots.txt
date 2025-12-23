@@ -1,0 +1,10 @@
+# robots.txt for CBKS77
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://cbks77.com/sitemap.xml
+
+# Disallow admin pages from indexing
+Disallow: /admin
+Disallow: /admin/
