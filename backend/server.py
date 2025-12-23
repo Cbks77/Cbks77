@@ -571,8 +571,8 @@ async def generate_sitemap():
         return Response(content=fallback_xml, media_type="application/xml")
 
 
-# Robots.txt endpoint
-@app.get("/robots.txt", response_class=Response)
+# Robots.txt endpoint - under /api for proper routing
+@api_router.get("/robots.txt", response_class=Response)
 async def get_robots():
     """Serve robots.txt"""
     robots_content = """# robots.txt for CBKS77
@@ -580,7 +580,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://cbks77.com/sitemap.xml
+Sitemap: https://cbks77.com/api/sitemap.xml
 
 # Disallow admin pages from indexing
 Disallow: /admin
