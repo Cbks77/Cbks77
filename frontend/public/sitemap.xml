@@ -2,31 +2,31 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://cbks77.com/</loc>
-    <lastmod>2024-12-22</lastmod>
+    <lastmod>2025-12-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://cbks77.com/portfolio</loc>
-    <lastmod>2024-12-22</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://cbks77.com/shop</loc>
-    <lastmod>2024-12-22</lastmod>
+    <lastmod>2025-12-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://cbks77.com/portfolio</loc>
+    <lastmod>2025-12-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://cbks77.com/about</loc>
-    <lastmod>2024-12-22</lastmod>
+    <loc>https://cbks77.com/contact</loc>
+    <lastmod>2025-12-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://cbks77.com/contact</loc>
-    <lastmod>2024-12-22</lastmod>
+    <loc>https://cbks77.com/about</loc>
+    <lastmod>2025-12-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
