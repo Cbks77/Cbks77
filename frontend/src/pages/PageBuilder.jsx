@@ -7,11 +7,27 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { 
   ArrowLeft, Plus, X, GripVertical, Type, Image, Video, 
-  LayoutGrid, Minus, Eye, Save, Trash2, MoveUp, MoveDown,
+  LayoutGrid, Minus, Eye, Save, Trash2,
   AlignLeft, AlignCenter, AlignRight
 } from 'lucide-react';
 import { api } from '../api/client';
 import { useToast } from '../hooks/use-toast';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const BLOCK_TYPES = [
   { id: 'hero', label: 'Hero Section', icon: LayoutGrid },
@@ -22,7 +38,23 @@ const BLOCK_TYPES = [
   { id: 'spacer', label: 'Spacer', icon: Minus },
 ];
 
-const BlockEditor = ({ block, onChange, onDelete, onMoveUp, onMoveDown, isFirst, isLast }) => {
+const SortableBlockEditor = ({ block, onChange, onDelete }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: block.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 1000 : 'auto',
+  };
+
   const updateContent = (key, value) => {
     onChange({ ...block, content: { ...block.content, [key]: value } });
   };
@@ -32,43 +64,32 @@ const BlockEditor = ({ block, onChange, onDelete, onMoveUp, onMoveDown, isFirst,
   };
 
   return (
-    <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-4 mb-4">
+    <div 
+      ref={setNodeRef} 
+      style={style} 
+      className={`bg-zinc-900 border ${isDragging ? 'border-red-500' : 'border-zinc-700'} rounded-lg p-4 mb-4`}
+    >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <GripVertical className="h-5 w-5 text-gray-500 cursor-grab" />
+          <button
+            type="button"
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing p-1 hover:bg-zinc-800 rounded touch-none"
+          >
+            <GripVertical className="h-5 w-5 text-gray-500" />
+          </button>
           <span className="text-white font-semibold capitalize">{block.type} Block</span>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onMoveUp}
-            disabled={isFirst}
-            className="text-gray-400 hover:text-white"
-          >
-            <MoveUp className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onMoveDown}
-            disabled={isLast}
-            className="text-gray-400 hover:text-white"
-          >
-            <MoveDown className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onDelete}
-            className="text-red-500 hover:text-red-400"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onDelete}
+          className="text-red-500 hover:text-red-400"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Block-specific content editors */}
@@ -283,6 +304,17 @@ const PageBuilder = () => {
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(isEdit);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   useEffect(() => {
     if (isEdit) {
       loadPage();
@@ -353,13 +385,24 @@ const PageBuilder = () => {
     });
   };
 
-  const moveBlock = (index, direction) => {
-    const newIndex = index + direction;
-    if (newIndex < 0 || newIndex >= formData.blocks.length) return;
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
     
-    const newBlocks = [...formData.blocks];
-    [newBlocks[index], newBlocks[newIndex]] = [newBlocks[newIndex], newBlocks[index]];
-    setFormData({ ...formData, blocks: newBlocks });
+    if (active.id !== over?.id) {
+      const oldIndex = formData.blocks.findIndex((block) => block.id === active.id);
+      const newIndex = formData.blocks.findIndex((block) => block.id === over.id);
+      
+      setFormData({
+        ...formData,
+        blocks: arrayMove(formData.blocks, oldIndex, newIndex)
+      });
+      
+      toast({
+        title: "Block Moved",
+        description: "Drag and drop successful!",
+        duration: 1500
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -491,11 +534,16 @@ const PageBuilder = () => {
             </CardContent>
           </Card>
 
-          {/* Page Blocks */}
+          {/* Page Blocks with Drag and Drop */}
           <Card className="bg-zinc-950 border-zinc-800 mb-6">
             <CardHeader>
-              <CardTitle className="text-white text-lg">
+              <CardTitle className="text-white text-lg flex items-center gap-2">
                 Page Content ({formData.blocks.length} blocks)
+                {formData.blocks.length > 1 && (
+                  <span className="text-sm font-normal text-gray-400">
+                    - Drag blocks to reorder
+                  </span>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -505,18 +553,25 @@ const PageBuilder = () => {
                   <p>No content blocks yet. Add blocks using the toolbar above.</p>
                 </div>
               ) : (
-                formData.blocks.map((block, index) => (
-                  <BlockEditor
-                    key={block.id}
-                    block={block}
-                    onChange={(updated) => updateBlock(index, updated)}
-                    onDelete={() => deleteBlock(index)}
-                    onMoveUp={() => moveBlock(index, -1)}
-                    onMoveDown={() => moveBlock(index, 1)}
-                    isFirst={index === 0}
-                    isLast={index === formData.blocks.length - 1}
-                  />
-                ))
+                <DndContext 
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext 
+                    items={formData.blocks.map(b => b.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {formData.blocks.map((block, index) => (
+                      <SortableBlockEditor
+                        key={block.id}
+                        block={block}
+                        onChange={(updated) => updateBlock(index, updated)}
+                        onDelete={() => deleteBlock(index)}
+                      />
+                    ))}
+                  </SortableContext>
+                </DndContext>
               )}
             </CardContent>
           </Card>
