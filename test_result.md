@@ -224,6 +224,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "✅ NEW FEATURE: Dynamic sitemap endpoint at /api/sitemap.xml. Auto-generates XML sitemap from database including static pages, all products, all portfolio items, and published custom pages. Tested via curl - returns valid XML with all URLs."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE TESTING COMPLETED: Dynamic sitemap endpoint at /api/sitemap.xml is working perfectly. Returns valid XML with proper namespace, includes all 4 static pages (home, shop, portfolio, contact), all 7 products from database, all 6 portfolio items from database, and 0 published custom pages. Total 17 URLs with correct priorities and changefreq. Tested via both Python requests and curl - both return proper XML structure. Feature is fully functional as specified."
 
   - task: "Drag-and-Drop Page Builder"
     implemented: true
